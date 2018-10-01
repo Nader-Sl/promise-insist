@@ -1,5 +1,5 @@
 # Promise-Manager
-A promise manager that provides flexible functionality to retry or cancel retrying promises based on error filtering and relational delays.
+A promise manager that provides flexible functionality to retry or cancel retrying promises based on error filtering and relational delays, more features are in mind to be implemented, thus the broad name.
 
 This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.
 
