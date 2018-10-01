@@ -3,6 +3,10 @@ A promise manager that provides flexible functionality to retry or cancel retryi
 
 This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.
 
+##### This TS lib can be used from commonJS as well , npm install it via:
+```powershell
+npm i promise-manager --save
+```
 ## Example
 ```typescript
 import PromiseManager from 'promise-manager'
