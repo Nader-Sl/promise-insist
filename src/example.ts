@@ -22,7 +22,14 @@ const getMagicRandRetriever = () => new Promise<number>((resolve, reject) => {
 const promiseManager = new PromiseManager(30, exponentialDelay);
 const t1_ID = 't1'
 const t2_ID = 't2'
-promiseManager.retry<number>(t1_ID,getMagicRandRetriever).then(res => { console.log(`t1 : Magic number ${res} was guessed!`) }).catch(err => console.log(`${t1_ID}: ${err}`))
-promiseManager.retry<number>(t2_ID,getMagicRandRetriever).then(res => { console.log(`t2 : Magic number ${res} was guessed!`) }).catch(err => console.log(`${t2_ID} : ${err}`))
+
+promiseManager.retry<number>(t1_ID,getMagicRandRetriever)
+.then(res => { console.log(`${t1_ID} : Magic number ${res} was guessed!`) })
+.catch(err => console.log(`${t1_ID}: ${err}`))
+
+promiseManager.retry<number>(t2_ID,getMagicRandRetriever)
+.then(res => { console.log(`${t2_ID} : Magic number ${res} was guessed!`) })
+.catch(err => console.log(`${t2_ID} : ${err}`))
+
 setTimeout(() => promiseManager.cancel(t1_ID), 5000)
 setTimeout(() => promiseManager.cancel(t2_ID), 8000)
