@@ -1,16 +1,35 @@
 {
-    "name": "promise-manager",
-    "version": "1.0.0",
-    "scripts": {
-        "test": "jest dist/__tests__ --watchAll --env=jsdom",
-        "build": "tsc -w"
-    },
-    "dependencies": {},
-    "jest": {
-        "transform": {},
-        "testEnvironment": "node"
-    },
-    "devDependencies": {
-        "@types/jest": "^23.3.2"
-    }
+  "name": "promise-manager",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest dist/__tests__ --watchAll --env=jsdom",
+    "build": "tsc -w"
+  },
+  "dependencies": {},
+  "jest": {
+    "transform": {},
+    "testEnvironment": "node"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.2"
+  },
+  "description": "A promise manager that provides flexible functionality to retry or cancel retrying promises based on error filtering and relational delays.",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nader-Sl/Promise-Manager.git"
+  },
+  "keywords": [
+    "typescript",
+    "promise-retry",
+    "promise-manager",
+    "retry",
+    "retry-axios"
+  ],
+  "author": "nadersl <nader.sleiman@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nader-Sl/Promise-Manager/issues"
+  },
+  "homepage": "https://github.com/Nader-Sl/Promise-Manager#readme"
 }
