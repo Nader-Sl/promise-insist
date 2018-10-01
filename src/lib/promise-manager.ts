@@ -2,6 +2,7 @@ export type DelayFunc = ((maxRetries: number, retries: number) => number)
 export type PromiseRetriever<T> = () => Promise<T>;
 export type ID = number | string
 export type ErrorWhitelist = (error: any) => boolean;
+export type CancelResolver = () => any;
 
 export type Config = {
   retries: number;
@@ -11,6 +12,7 @@ export type Config = {
 
 interface MetaData {
   canceled?: boolean;
+  cancelResolver?: CancelResolver;
   timeout?: number;
   starttime?: number;
   resolve?: any;
@@ -46,24 +48,26 @@ export default class PromiseManager {
    */
 
   public async cancel(id) {
-    if (!this.taskMeta.has(id)) return false;
-    const meta = this.taskMeta.get(id)
-    if (meta === undefined || !('timeout' in meta)) return false;
-    this.taskMeta.set(id, { ...meta, canceled: true })
-    clearTimeout(meta.timeout)
-    meta.resolve()
-    return true;
+    return new Promise((resolve) => {
+      const meta = this.taskMeta.get(id)
+      if (meta === undefined || !('timeout' in meta) || meta.canceled === true) resolve();
+      else {
+        this.taskMeta.set(id, { ...meta, canceled: true, cancelResolver: resolve })
+        clearTimeout(meta!.timeout)
+        meta!.resolve()
+      }
+    })
   }
 
   /**
-   * Insist on resolving the promise via x tries
+   * Insists on resolving the promise via x tries
    * @param id ID of the promise/task
    * @param promiseRetriever A function that when executed returns a promise
    * @param config Optional configuration , if not specified the config passed in the constructor will be used, if that latter wasn't specified either, the default will be used .
    */
 
   public async insist<T>(id: ID, promiseRetriever: PromiseRetriever<T>, config: Config = { retries: this.retries, delay: this.delay, errorWhitelist: this.errorWhitelist }): Promise<T> {
-    if (this.taskMeta.has(id)) throw new Error('Promise already pending')
+    if (this.taskMeta.has(id)) throw new Error('Promise is still pending, if you want to cancel it call cancel(id).')
     this.taskMeta.set(id, { canceled: false, starttime: Date.now() })
     return this._insist<T>(id, promiseRetriever, config, config.retries)
   }
@@ -79,6 +83,8 @@ export default class PromiseManager {
       if (!config.errorWhitelist(err) || config.retries === 1 || metaData.canceled) {
         if (this.log && metaData.canceled) console.log(`Canceled task of ID : ${id} (~ ${Date.now() - (metaData.starttime || 0)} ms)`)
         this.taskMeta.delete(id)
+
+        if (typeof metaData.cancelResolver === 'function') metaData.cancelResolver();
         throw new Error(err)
       }
 

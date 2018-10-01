@@ -74,22 +74,23 @@ var PromiseManager = /** @class */ (function () {
      */
     PromiseManager.prototype.cancel = function (id) {
         return __awaiter(this, void 0, void 0, function () {
-            var meta;
+            var _this = this;
             return __generator(this, function (_a) {
-                if (!this.taskMeta.has(id))
-                    return [2 /*return*/, false];
-                meta = this.taskMeta.get(id);
-                if (meta === undefined || !('timeout' in meta))
-                    return [2 /*return*/, false];
-                this.taskMeta.set(id, __assign({}, meta, { canceled: true }));
-                clearTimeout(meta.timeout);
-                meta.resolve();
-                return [2 /*return*/, true];
+                return [2 /*return*/, new Promise(function (resolve) {
+                        var meta = _this.taskMeta.get(id);
+                        if (meta === undefined || !('timeout' in meta) || meta.canceled === true)
+                            resolve();
+                        else {
+                            _this.taskMeta.set(id, __assign({}, meta, { canceled: true, cancelResolver: resolve }));
+                            clearTimeout(meta.timeout);
+                            meta.resolve();
+                        }
+                    })];
             });
         });
     };
     /**
-     * Insist on resolving the promise via x tries
+     * Insists on resolving the promise via x tries
      * @param id ID of the promise/task
      * @param promiseRetriever A function that when executed returns a promise
      * @param config Optional configuration , if not specified the config passed in the constructor will be used, if that latter wasn't specified either, the default will be used .
@@ -99,7 +100,7 @@ var PromiseManager = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 if (this.taskMeta.has(id))
-                    throw new Error('Promise already pending');
+                    throw new Error('Promise is still pending, if you want to cancel it call cancel(id).');
                 this.taskMeta.set(id, { canceled: false, starttime: Date.now() });
                 return [2 /*return*/, this._insist(id, promiseRetriever, config, config.retries)];
             });
@@ -126,6 +127,8 @@ var PromiseManager = /** @class */ (function () {
                             if (this.log && metaData_1.canceled)
                                 console.log("Canceled task of ID : " + id + " (~ " + (Date.now() - (metaData_1.starttime || 0)) + " ms)");
                             this.taskMeta.delete(id);
+                            if (typeof metaData_1.cancelResolver === 'function')
+                                metaData_1.cancelResolver();
                             throw new Error(err_1);
                         }
                         delay_1 = config.delay;
