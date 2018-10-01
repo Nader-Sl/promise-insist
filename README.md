@@ -43,4 +43,4 @@ setTimeout(() => promiseManager.cancel(t2_ID), 8000)
 ```
 ## Example Output
 
-![alt text](https://puu.sh/BDVac/4ac57cac6a.png "Example Output
+![alt text](https://puu.sh/BDVac/4ac57cac6a.png "Example Output)
