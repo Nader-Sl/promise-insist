@@ -36,6 +36,8 @@ export default class PromiseManager {
     if (retries !== undefined) this.retries = retries;
     if (delay !== undefined) this.delay = delay;
     if (errorWhitelist !== undefined) this.errorWhitelist = errorWhitelist;
+    this.insist = this.insist.bind(this)
+    this.cancel = this.cancel.bind(this)
   }
 
   /**
@@ -46,30 +48,27 @@ export default class PromiseManager {
   public async cancel(id) {
     if (!this.taskMeta.has(id)) return false;
     const meta = this.taskMeta.get(id)
-    if (meta !== undefined) {
-      this.taskMeta.set(id, { ...meta, canceled: true })
-      if ('timeout' in meta) {
-        clearTimeout(meta.timeout)
-        meta.resolve()
-        return true;
-      }
-    }
+    if (meta === undefined || !('timeout' in meta)) return false;
+    this.taskMeta.set(id, { ...meta, canceled: true })
+    clearTimeout(meta.timeout)
+    meta.resolve()
+    return true;
   }
 
   /**
-   * 
+   * Insist on resolving the promise via x tries
    * @param id ID of the promise/task
    * @param promiseRetriever A function that when executed returns a promise
    * @param config Optional configuration , if not specified the config passed in the constructor will be used, if that latter wasn't specified either, the default will be used .
    */
 
-  public async retry<T>(id: ID, promiseRetriever: PromiseRetriever<T>, config: Config = { retries: this.retries, delay: this.delay, errorWhitelist: this.errorWhitelist }): Promise<T> {
+  public async insist<T>(id: ID, promiseRetriever: PromiseRetriever<T>, config: Config = { retries: this.retries, delay: this.delay, errorWhitelist: this.errorWhitelist }): Promise<T> {
     if (this.taskMeta.has(id)) throw new Error('Promise already pending')
     this.taskMeta.set(id, { canceled: false, starttime: Date.now() })
-    return this._retry<T>(id, promiseRetriever, config, config.retries)
+    return this._insist<T>(id, promiseRetriever, config, config.retries)
   }
 
-  private async _retry<T>(id: ID, promiseRetriever: PromiseRetriever<T>, config: Config, maxRetries: number): Promise<T> {
+  private async _insist<T>(id: ID, promiseRetriever: PromiseRetriever<T>, config: Config, maxRetries: number): Promise<T> {
     try {
       const result = await promiseRetriever();
       this.taskMeta.delete(id)
@@ -89,7 +88,7 @@ export default class PromiseManager {
       }
       if (this.log) console.log(`Retrying ${id} after ${delay} ms`)
       config.retries -= 1
-      return new Promise<T>(resolve => metaData!.timeout = setTimeout(metaData!.resolve = () => resolve(this._retry<T>(id, promiseRetriever, config, maxRetries)), delay as number))
+      return new Promise<T>(resolve => metaData.timeout = setTimeout(metaData.resolve = () => resolve(this._insist<T>(id, promiseRetriever, config, maxRetries)), delay as number))
     }
   }
 }
