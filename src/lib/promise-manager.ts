@@ -83,7 +83,6 @@ export default class PromiseManager {
       if (!config.errorWhitelist(err) || config.retries === 1 || metaData.canceled) {
         if (this.log && metaData.canceled) console.log(`Canceled task of ID : ${id} (~ ${Date.now() - (metaData.starttime || 0)} ms)`)
         this.taskMeta.delete(id)
-
         if (typeof metaData.cancelResolver === 'function') metaData.cancelResolver();
         throw new Error(err)
       }
