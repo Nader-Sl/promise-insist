@@ -14,7 +14,7 @@
     "@types/jest": "^23.3.2"
   },
   "description": "A promise manager that provides flexible functionality to retry or cancel retrying promises based on error filtering and relational delays.",
-  "main": "src/index.js",
+  "main": "./src/index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Nader-Sl/Promise-Manager.git"
