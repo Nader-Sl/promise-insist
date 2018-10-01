@@ -1,1 +1,1 @@
-exports.default = require('../dist/lib/promise-manager')
+exports.default = require('../dist/lib/promise-manager').default
