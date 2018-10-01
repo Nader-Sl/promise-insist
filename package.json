@@ -1,6 +1,6 @@
 {
   "name": "promise-manager",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "test": "jest dist/__tests__ --watchAll --env=jsdom",
     "build": "tsc -w"
