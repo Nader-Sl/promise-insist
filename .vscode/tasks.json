@@ -1,0 +1,25 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "npm run build",
+            "options": {
+                "cwd": "./"
+            },
+            "group":"build"
+        },
+        {
+            "label": "Test",
+            "type": "shell",
+            "command": "npm run test",
+            "options": {
+                "cwd": "./"
+            },
+            "group":"build"
+        }
+    ]
+}

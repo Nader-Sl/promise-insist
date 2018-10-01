@@ -1,0 +1,16 @@
+{
+    "name": "promise-manager",
+    "version": "1.0.0",
+    "scripts": {
+        "test": "jest dist/__tests__ --watchAll --env=jsdom",
+        "build": "tsc -w"
+    },
+    "dependencies": {},
+    "jest": {
+        "transform": {},
+        "testEnvironment": "node"
+    },
+    "devDependencies": {
+        "@types/jest": "^23.3.2"
+    }
+}
