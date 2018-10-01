@@ -72,4 +72,26 @@ setTimeout(() => cancel(t1_ID).then(insist2CallWrapper), getRand(3000, 6000))
 ```
 ## Example Output
 
-![alt text](https://puu.sh/BDVac/4ac57cac6a.png "Example Output")
+```powershell
+Retrying t1 after 1110.9003204909684 ms
+promise-manager.ts:95
+Retrying t1 after 1203.0264217438003 ms
+promise-manager.ts:95
+Retrying t1 after 1442.7503457631267 ms
+promise-manager.ts:95
+Retrying t1 after 1801.589045514925 ms
+promise-manager.ts:95
+Canceled task of ID : t1 (~ 4304 ms)
+promise-manager.ts:84
+Retrying t2 after 2000 ms
+promise-manager.ts:95
+t1: Error: Error: Random magic number wasn't guessed.
+example.ts:45
+Retrying t2 after 2000 ms
+promise-manager.ts:95
+Retrying t2 after 2000 ms
+promise-manager.ts:95
+Retrying t2 after 2000 ms
+promise-manager.ts:95
+t2 : Magic number 5 was guessed!
+```
