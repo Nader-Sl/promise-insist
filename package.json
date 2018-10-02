@@ -1,6 +1,6 @@
 {
   "name": "promise-insist",
-  "version": "1.0.9",
+  "version": "1.0.0",
   "scripts": {
     "test": "jest dist/__tests__ --watchAll --env=jsdom",
     "build": "tsc -w"
