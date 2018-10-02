@@ -18,7 +18,7 @@ interface MetaData {
   resolve?: any;
 }
 
-export default class PromiseManager {
+export default class PromiseInsist {
 
   private retries: number = 10;
   private delay: number | DelayFunc = 1000;

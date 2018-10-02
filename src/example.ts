@@ -1,4 +1,4 @@
-import PromiseManager from '.'
+import PromiseInsist from '.'
 
 class ExampleError extends Error {
   constructor(msg: string, errorCode: number) {
@@ -34,7 +34,7 @@ const getMagicCallWrapper = () => new Promise<number>((resolve, reject) => {
 
 
 //Create a PromiseManager instance with 30 retries and an exponential delay
-const { insist, cancel } = new PromiseManager(30, exponentialDelay);
+const { insist, cancel } = new PromiseInsist(30, exponentialDelay);
 
 // IDs to be assigned per insisting promise.
 const t1_ID = 't1', t2_ID = 't2'

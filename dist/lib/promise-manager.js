@@ -46,14 +46,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var PromiseManager = /** @class */ (function () {
+var PromiseInsist = /** @class */ (function () {
     /**
      *
      * @param retries Number of retries, default is 10
      * @param delay the delay in ms as a Number or DelayFunc, Default is 1000
      * @param errorWhitelist a function that allows retrying only the whitelisted error.
      */
-    function PromiseManager(retries, delay, errorWhitelist) {
+    function PromiseInsist(retries, delay, errorWhitelist) {
         this.retries = 10;
         this.delay = 1000;
         this.taskMeta = new Map();
@@ -72,7 +72,7 @@ var PromiseManager = /** @class */ (function () {
      *
      * @param id the id associated with the retryable promise/task
      */
-    PromiseManager.prototype.cancel = function (id) {
+    PromiseInsist.prototype.cancel = function (id) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
@@ -95,7 +95,7 @@ var PromiseManager = /** @class */ (function () {
      * @param promiseRetriever A function that when executed returns a promise
      * @param config Optional configuration , if not specified the config passed in the constructor will be used, if that latter wasn't specified either, the default will be used .
      */
-    PromiseManager.prototype.insist = function (id, promiseRetriever, config) {
+    PromiseInsist.prototype.insist = function (id, promiseRetriever, config) {
         if (config === void 0) { config = { retries: this.retries, delay: this.delay, errorWhitelist: this.errorWhitelist }; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -106,7 +106,7 @@ var PromiseManager = /** @class */ (function () {
             });
         });
     };
-    PromiseManager.prototype._insist = function (id, promiseRetriever, config, maxRetries) {
+    PromiseInsist.prototype._insist = function (id, promiseRetriever, config, maxRetries) {
         return __awaiter(this, void 0, void 0, function () {
             var result, err_1, metaData_1, delay_1;
             var _this = this;
@@ -144,7 +144,7 @@ var PromiseManager = /** @class */ (function () {
             });
         });
     };
-    return PromiseManager;
+    return PromiseInsist;
 }());
-exports.default = PromiseManager;
+exports.default = PromiseInsist;
 //# sourceMappingURL=promise-manager.js.map
