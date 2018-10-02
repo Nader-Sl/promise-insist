@@ -1,5 +1,6 @@
 # promise-insist
-### You know when someone fails to fullfill his promise, we'd rather insist about it.
+### "You know when someone fails to fullfill his promise, we'd rather insist about it."
+
 
 Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying or cancel retrying promises based on error filtering and relational delays, more features are in mind to be implemented, thus the broad name.
 
