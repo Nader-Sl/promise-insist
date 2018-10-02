@@ -1,1 +1,1 @@
-export {default} from './lib/promise-manager'
+export {default} from './lib/promise-insist'

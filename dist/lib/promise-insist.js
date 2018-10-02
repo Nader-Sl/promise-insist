@@ -147,4 +147,4 @@ var PromiseInsist = /** @class */ (function () {
     return PromiseInsist;
 }());
 exports.default = PromiseInsist;
-//# sourceMappingURL=promise-manager.js.map
+//# sourceMappingURL=promise-insist.js.map

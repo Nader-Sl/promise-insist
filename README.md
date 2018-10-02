@@ -1,5 +1,9 @@
-# Promise-Manager
-A promise manager that provides flexible functionality to retry or cancel retrying promises based on error filtering and relational delays, more features are in mind to be implemented, thus the broad name.
+# promise-insist
+### "You know when someone fails to fullfill his promise, we'd rather insist about it."
+
+
+
+Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying or cancel retrying promises based on error filtering and relational delays, more features are in mind to be implemented, thus the broad name.
 
 This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.
 
@@ -9,7 +13,7 @@ npm i promise-manager --save
 ```
 ## Example
 ```typescript
-import PromiseManager from 'promise-manager'
+import PromiseInsist from 'promise-insist'
 
 class ExampleError extends Error {
   constructor(msg: string, errorCode: number) {
@@ -45,7 +49,7 @@ const getMagicCallWrapper = () => new Promise<number>((resolve, reject) => {
 
 
 //Create a PromiseManager instance with 30 retries and an exponential delay
-const { insist, cancel } = new PromiseManager(30, exponentialDelay);
+const { insist, cancel } = new PromiseInsist(30, exponentialDelay);
 
 // IDs to be assigned per insisting promise.
 const t1_ID = 't1', t2_ID = 't2'

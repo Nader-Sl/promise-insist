@@ -1,1 +1,1 @@
-exports.default = require('../dist/lib/promise-manager').default
+exports.default = require('../dist/lib/promise-insist').default
