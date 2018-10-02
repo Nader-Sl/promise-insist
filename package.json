@@ -1,5 +1,5 @@
 {
-  "name": "promise-manager",
+  "name": "promise-insist",
   "version": "1.0.6",
   "scripts": {
     "test": "jest dist/__tests__ --watchAll --env=jsdom",
