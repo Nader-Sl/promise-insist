@@ -10,7 +10,7 @@ This is a useful solution for more advanced scenarios when you want to be able t
 
 ##### This TS lib can be used in a commonJS environment as well , npm install it via:
 ```powershell
-npm i promise-manager --save
+npm i promise-insist --save
 ```
 ## Example
 ```typescript
