@@ -1,17 +1,4 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -22,19 +9,6 @@ var axios_1 = __importDefault(require("axios"));
 var ExponentialDelay = presets_1.Delays.ExponentialDelay;
 //A Preset of Axios error filters.
 var _a = presets_1.ErrorFilters.AxiosErrorFilters, isRetryable = _a.isRetryable, isServerError = _a.isServerError, isNetError = _a.isNetError, isSafe = _a.isSafe, isIdempotent = _a.isIdempotent;
-var ExampleError = /** @class */ (function (_super) {
-    __extends(ExampleError, _super);
-    function ExampleError(msg, errorCode) {
-        var _this = _super.call(this, msg) || this;
-        _this.errorCode = errorCode;
-        Object.setPrototypeOf(_this, ExampleError.prototype);
-        return _this;
-    }
-    ExampleError.prototype.getErrorCode = function () {
-        return this.errorCode;
-    };
-    return ExampleError;
-}(Error));
 //Create an Axios PromiseInsist instance with 20 retries per request , exponential delay and only retry if error is a server error.
 var _b = new __1.default({ retries: 20, delay: presets_1.Delays.ExponentialDelay(), errorFilter: isRetryable }), insist = _b.insist, cancel = _b.cancel;
 // handles assigned per insisting promise, used to cancel any later.

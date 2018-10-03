@@ -1,4 +1,4 @@
-import PromiseInsist, {  } from '..';
+import PromiseInsist, { } from '..';
 
 class ExampleError extends Error {
   constructor(msg: string, errorCode: number) {

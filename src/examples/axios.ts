@@ -6,18 +6,6 @@ const { ExponentialDelay } = Delays;
 //A Preset of Axios error filters.
 const { isRetryable, isServerError, isNetError, isSafe, isIdempotent } = ErrorFilters.AxiosErrorFilters;
 
-class ExampleError extends Error {
-  constructor(msg: string, errorCode: number) {
-    super(msg);
-    this.errorCode = errorCode;
-    Object.setPrototypeOf(this, ExampleError.prototype);
-  }
-  private errorCode: number;
-  public getErrorCode() {
-    return this.errorCode;
-  }
-}
-
 //Create an Axios PromiseInsist instance with 20 retries per request , exponential delay and only retry if error is a server error.
 const { insist, cancel } = new PromiseInsist({ retries: 20, delay: Delays.ExponentialDelay(), errorFilter: isRetryable });
 
