@@ -6,7 +6,7 @@
             "name": "Launch",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/dist/example.js",
+            "program": "${workspaceRoot}/dist/examples/axios.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",

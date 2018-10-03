@@ -51,20 +51,29 @@ var PromiseInsist = /** @class */ (function () {
      *
      * @param retries Number of retries, default is 10
      * @param delay the delay in ms as a Number or DelayFunc, Default is 1000
-     * @param errorWhitelist a function that allows retrying only the whitelisted error.
+     * @param errorFilter a function that allows retrying only the whitelisted error.
      */
-    function PromiseInsist(retries, delay, errorWhitelist) {
-        this.retries = 10;
-        this.delay = 1000;
+    function PromiseInsist(config) {
+        //global config per instance.
+        this.globalConfig = {
+            retries: 10,
+            delay: 1000,
+            errorFilter: function (err) { return true; }
+        };
         this.taskMeta = new Map();
-        this.errorWhitelist = function (err) { return true; };
-        this.log = true;
-        if (retries !== undefined)
-            this.retries = retries;
-        if (delay !== undefined)
-            this.delay = delay;
-        if (errorWhitelist !== undefined)
-            this.errorWhitelist = errorWhitelist;
+        this.verbose = true;
+        if (config !== undefined) {
+            var retries = config.retries, delay = config.delay, errorFilter = config.errorFilter;
+            if (retries !== undefined) {
+                this.globalConfig.retries = retries;
+            }
+            if (delay !== undefined) {
+                this.globalConfig.delay = delay;
+            }
+            if (errorFilter !== undefined) {
+                this.globalConfig.errorFilter = errorFilter;
+            }
+        }
         this.insist = this.insist.bind(this);
         this.cancel = this.cancel.bind(this);
     }
@@ -76,16 +85,23 @@ var PromiseInsist = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve) {
-                        var meta = _this.taskMeta.get(id);
-                        if (meta === undefined || !('timeout' in meta) || meta.canceled === true)
-                            resolve();
-                        else {
-                            _this.taskMeta.set(id, __assign({}, meta, { canceled: true, cancelResolver: resolve }));
-                            clearTimeout(meta.timeout);
-                            meta.resolve();
-                        }
-                    })];
+                return [2 /*return*/, new Promise(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
+                        var meta;
+                        return __generator(this, function (_a) {
+                            meta = this.taskMeta.get(id);
+                            if (meta === undefined ||
+                                !('timeout' in meta) ||
+                                meta.canceled === true) {
+                                resolve();
+                            }
+                            else {
+                                clearTimeout(meta.timeout);
+                                this.taskMeta.set(id, __assign({}, meta, { canceled: true, cancelResolver: resolve }));
+                                meta.resolve();
+                            }
+                            return [2 /*return*/];
+                        });
+                    }); })];
             });
         });
     };
@@ -93,14 +109,17 @@ var PromiseInsist = /** @class */ (function () {
      * Insists on resolving the promise via x tries
      * @param id ID of the promise/task
      * @param promiseRetriever A function that when executed returns a promise
-     * @param config Optional configuration , if not specified the config passed in the constructor will be used, if that latter wasn't specified either, the default will be used .
+     * @param config
+     * Optional configuration , if not specified the config passed in the constructor will be used,
+     * if that latter wasn't specified either, the default will be used .
      */
     PromiseInsist.prototype.insist = function (id, promiseRetriever, config) {
-        if (config === void 0) { config = { retries: this.retries, delay: this.delay, errorWhitelist: this.errorWhitelist }; }
+        if (config === void 0) { config = this.globalConfig; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                if (this.taskMeta.has(id))
+                if (this.taskMeta.has(id)) {
                     throw new Error('Promise is still pending, if you want to cancel it call cancel(id).');
+                }
                 this.taskMeta.set(id, { canceled: false, starttime: Date.now() });
                 return [2 /*return*/, this._insist(id, promiseRetriever, config, config.retries)];
             });
@@ -122,23 +141,37 @@ var PromiseInsist = /** @class */ (function () {
                     case 2:
                         err_1 = _a.sent();
                         metaData_1 = this.taskMeta.get(id);
+                        //required in case promise was revoked twice after cancel()
+                        if (metaData_1 === undefined) {
+                            return [2 /*return*/, Promise.resolve(err_1)];
+                        }
                         delete metaData_1.timeout;
-                        if (!config.errorWhitelist(err_1) || config.retries === 1 || metaData_1.canceled) {
-                            if (this.log && metaData_1.canceled)
+                        if (!config.errorFilter(err_1) ||
+                            config.retries === 0 ||
+                            metaData_1.canceled) {
+                            if (this.verbose && metaData_1.canceled) {
                                 console.log("Canceled task of ID : " + id + " (~ " + (Date.now() - (metaData_1.starttime || 0)) + " ms)");
+                            }
                             this.taskMeta.delete(id);
-                            if (typeof metaData_1.cancelResolver === 'function')
-                                metaData_1.cancelResolver();
-                            throw new Error(err_1);
+                            if (typeof metaData_1.cancelResolver === 'function') {
+                                metaData_1.cancelResolver({ id: id, time: Date.now() - (metaData_1.starttime || 0) });
+                            }
+                            return [2 /*return*/, Promise.reject(err_1)];
                         }
                         delay_1 = config.delay;
                         if (typeof delay_1 === 'function') {
                             delay_1 = delay_1(maxRetries, config.retries);
                         }
-                        if (this.log)
+                        if (this.verbose) {
                             console.log("Retrying " + id + " after " + delay_1 + " ms");
+                        }
                         config.retries -= 1;
-                        return [2 /*return*/, new Promise(function (resolve) { return metaData_1.timeout = setTimeout(metaData_1.resolve = function () { return resolve(_this._insist(id, promiseRetriever, config, maxRetries)); }, delay_1); })];
+                        return [2 /*return*/, new Promise(function (resolve) {
+                                metaData_1.resolve = function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+                                    return [2 /*return*/, resolve(this._insist(id, promiseRetriever, config, maxRetries))];
+                                }); }); };
+                                metaData_1.timeout = setTimeout(metaData_1.resolve, delay_1);
+                            })];
                     case 3: return [2 /*return*/];
                 }
             });

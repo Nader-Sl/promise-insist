@@ -1,15 +1,16 @@
 # promise-insist
-### "You know when someone fails to fullfill his promise, we'd rather insist about it."
+###  But you promised..
+#### _"You know when someone fails to fullfill his promise, we'd rather insist about it."_
 
 
 
-Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying or cancel retrying promises based on error filtering and relational delays, more features are in mind to be implemented, thus the broad name.
+Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying or cancel retrying promises based on error filtering and relational delays.
 
 This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.
 
 ##### This TS lib can be used in a commonJS environment as well , npm install it via:
 ```powershell
-npm i promise-manager --save
+npm i promise-insist --save
 ```
 ## Example
 ```typescript
