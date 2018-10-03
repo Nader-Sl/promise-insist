@@ -2,12 +2,13 @@ import PromiseInsist from '..';
 import { ErrorFilters, Delays } from '../presets';
 import axios from 'axios';
 
+// A preset of Delays error filters.
 const { ExponentialDelay } = Delays;
 //A Preset of Axios error filters.
 const { isRetryable, isServerError, isNetError, isSafe, isIdempotent } = ErrorFilters.AxiosErrorFilters;
 
 //Create an Axios PromiseInsist instance with 20 retries per request , exponential delay and only retry if error is a server error.
-const { insist, cancel } = new PromiseInsist({ retries: 20, delay: Delays.ExponentialDelay(), errorFilter: isRetryable });
+const { insist, cancel } = new PromiseInsist({ retries: 20, delay: ExponentialDelay(), errorFilter: isRetryable });
 
 // handles assigned per insisting promise, used to cancel any later.
 const t1_ID = 'doSomething';

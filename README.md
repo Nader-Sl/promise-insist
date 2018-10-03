@@ -3,6 +3,7 @@
   <h3 align="center">But you promised..</h3>
   <h4 align="center">"When someone fails to fullfill his promise, we'd rather insist about it."</h3>
  <br/>
+
 Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying or cancel retrying promises based on error filtering and relational delays.
 
 This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.
@@ -105,12 +106,13 @@ import PromiseInsist from '..';
 import { ErrorFilters, Delays } from '../presets';
 import axios from 'axios';
 
+// A preset of Delays error filters.
 const { ExponentialDelay } = Delays;
 //A Preset of Axios error filters.
 const { isRetryable, isServerError, isNetError, isSafe, isIdempotent } = ErrorFilters.AxiosErrorFilters;
 
 //Create an Axios PromiseInsist instance with 20 retries per request , exponential delay and only retry if error is a server error.
-const { insist, cancel } = new PromiseInsist({ retries: 20, delay: Delays.ExponentialDelay(), errorFilter: isRetryable });
+const { insist, cancel } = new PromiseInsist({ retries: 20, delay: ExponentialDelay(), errorFilter: isRetryable });
 
 // handles assigned per insisting promise, used to cancel any later.
 const t1_ID = 'doSomething';
@@ -137,6 +139,7 @@ setTimeout(
       .catch(err => console.log(err));
   },
   3000);
+
 
 ```
 
