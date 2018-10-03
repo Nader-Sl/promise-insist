@@ -1,1 +1,1 @@
-modules.exports = require('../dist/lib/promise-insist')
+module.exports = require('../dist/lib/promise-insist')
