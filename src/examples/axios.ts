@@ -1,5 +1,5 @@
 
-/** Commonjs Import Style
+/** Commonjs Import Style (via npm)
  * var PromiseInsist = require('promise-insist').default;
  */
 import PromiseInsist from '..';

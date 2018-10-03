@@ -14,6 +14,9 @@ npm i promise-insist --save
 ```
 ## General Example
 ```typescript
+/** Commonjs Import Style
+ * var PromiseInsist = require('promise-insist').default;
+ */
 import PromiseInsist from 'promise-insist'
 
 class ExampleError extends Error {
@@ -102,8 +105,11 @@ ___
 #### You can also choose a preset for the **Delay** and **ErrorFilter** (you can write yours and submit a PR).
 ## Axios Example:
 ```typescript
-import PromiseInsist from '..';
-import { ErrorFilters, Delays } from '../presets';
+/** Commonjs Import Style (via npm)
+ * var PromiseInsist = require('promise-insist').default;
+ */
+import PromiseInsist from 'promise-insist';
+import { ErrorFilters, Delays } from 'promise-insist/presets';
 import axios from 'axios';
 
 // A preset of Delays error filters.
@@ -139,6 +145,7 @@ setTimeout(
       .catch(err => console.log(err));
   },
   3000);
+
 
 
 ```
