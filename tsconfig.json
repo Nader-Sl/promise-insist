@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "noImplicitAny": false,
     "moduleResolution": "node",
+    "declaration": true,
     "lib": ["es6", "dom"]
   },
   "exclude": [

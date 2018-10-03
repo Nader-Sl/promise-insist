@@ -16,6 +16,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/** Commonjs Import Style
+ * var PromiseInsist = require('promise-insist').default;
+ */
 var __1 = __importDefault(require(".."));
 var ExampleError = /** @class */ (function (_super) {
     __extends(ExampleError, _super);

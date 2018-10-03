@@ -4,9 +4,18 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build",
+            "label": "tsc-watch",
             "type": "shell",
-            "command": "npm run build",
+            "command": "npm run tsc-watch",
+            "options": {
+                "cwd": "./"
+            },
+            "group":"build"
+        },
+        {
+            "label": "babel-watch",
+            "type": "shell",
+            "command": "npm run babel-watch",
             "options": {
                 "cwd": "./"
             },

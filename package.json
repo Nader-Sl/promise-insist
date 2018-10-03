@@ -3,7 +3,7 @@
   "version": "1.1.1",
   "scripts": {
     "test": "jest dist/__tests__ --watchAll --env=jsdom",
-    "build": "tsc -w"
+    "tsc-watch": "tsc -w"
   },
   "dependencies": {
     "@types/axios": "^0.14.0",
@@ -14,12 +14,18 @@
     "testEnvironment": "node"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.2",
+    "@types/node": "^10.11.3",
     "tslint": "^5.11.0",
     "tslint-microsoft-contrib": "^5.2.1"
   },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },
   "description": "Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying or cancel retrying promises based on error filtering and relational delays.",
-  "main": "./src/index.js",
+  "main": "src/index.js",
+  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Nader-Sl/promise-insist.git"

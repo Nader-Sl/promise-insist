@@ -1,4 +1,7 @@
-import PromiseInsist, { } from '..';
+/** Commonjs Import Style
+ * var PromiseInsist = require('promise-insist').default;
+ */
+import PromiseInsist from '..';
 
 class ExampleError extends Error {
   constructor(msg: string, errorCode: number) {

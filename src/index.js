@@ -1,1 +1,0 @@
-exports.default = require('../dist/lib/promise-insist').default

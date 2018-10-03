@@ -1,3 +1,7 @@
+
+/** Commonjs Import Style
+ * var PromiseInsist = require('promise-insist').default;
+ */
 import PromiseInsist from '..';
 import { ErrorFilters, Delays } from '../presets';
 import axios from 'axios';

@@ -18,6 +18,8 @@
         "promise-must-complete": false,
         "no-shadowed-variable": false,
         "align": false,
+        "no-var-keyword": false,
+        "prefer-const": false,
         "no-require-imports": false,
         "no-var-requires": false,
         "member-ordering": false,

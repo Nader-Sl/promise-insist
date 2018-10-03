@@ -13,7 +13,7 @@ export type Config = {
 interface MetaData {
       canceled?: boolean;
       cancelResolver?: CancelResolver;
-      timeout?: number;
+      timeout?: any;
       starttime?: number;
       resolve?;
 }
