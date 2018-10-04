@@ -20,23 +20,11 @@ function getRand(min, max): number {
 }
 
 //re-usable call wrapper for insisting on getting a random number of value 5
-const guess5Callwrapper = () => new Promise<number>(
+const guessCallwrapper = (guess: number) => () => new Promise<number>(
   (resolve, reject) => {
     setTimeout(() => { }, 2000);
     const magicNumber = getRand(1, 10);
-    if (magicNumber === 5) {
-      resolve(magicNumber);
-    } else {
-      reject(new GoodluckError('Random magic number wasn\'t guessed.', 777));
-    }
-  });
-
-//re-usable call wrapper for insisting on getting a random number of value 7
-const guess7Callwrapper = () => new Promise<number>(
-  (resolve, reject) => {
-    setTimeout(() => { }, 2000);
-    const magicNumber = getRand(1, 10);
-    if (magicNumber === 7) {
+    if (magicNumber === guess) {
       resolve(magicNumber);
     } else {
       reject(new GoodluckError('Random magic number wasn\'t guessed.', 777));
@@ -58,7 +46,7 @@ const t1_ID = 't1', t2_ID = 't2';
 
 insist(
   t1_ID, //The handle
-  guess5Callwrapper, //The promise wrapper to insist on.
+  guessCallwrapper(5), //The promise wrapper to insist on.
   // A retry hook, executed on every attempt, passed in current attempt count and time consumed by the last retry
   (attemptCount, timeConsumed) => {
     console.log(`Attempt #${attemptCount} done in ${timeConsumed} ms`);
@@ -81,7 +69,7 @@ setTimeout(
       .then(
         () => insist(
           t2_ID,
-          guess7Callwrapper,
+          guessCallwrapper(7),
           //no retry hook this time
           null,
 
@@ -94,12 +82,12 @@ setTimeout(
   getRand(3000, 5000));
 
 /**
- * After 4 seconds, replace the task of guessing 7 to the previous task of guessing 5
+ * After 4 seconds, replace the task of guessing 7 to yet another task of guessing 3
  * so that in case the current task is still retrying, the replaced task will be swapped
  * while maintaining the retries count. (useful in things like rate-limits etc.)
  */
 setTimeout(
   () => {
-    replaceTask(t2_ID, guess5Callwrapper);
+    replaceTask(t2_ID, guessCallwrapper(3));
   },
   4000);

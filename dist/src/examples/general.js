@@ -36,27 +36,16 @@ function getRand(min, max) {
     return Math.floor(Math.random() * (_max - _min)) + _min;
 }
 //re-usable call wrapper for insisting on getting a random number of value 5
-var guess5Callwrapper = function () { return new Promise(function (resolve, reject) {
+var guessCallwrapper = function (guess) { return function () { return new Promise(function (resolve, reject) {
     setTimeout(function () { }, 2000);
     var magicNumber = getRand(1, 10);
-    if (magicNumber === 5) {
+    if (magicNumber === guess) {
         resolve(magicNumber);
     }
     else {
         reject(new GoodluckError('Random magic number wasn\'t guessed.', 777));
     }
-}); };
-//re-usable call wrapper for insisting on getting a random number of value 7
-var guess7Callwrapper = function () { return new Promise(function (resolve, reject) {
-    setTimeout(function () { }, 2000);
-    var magicNumber = getRand(1, 10);
-    if (magicNumber === 7) {
-        resolve(magicNumber);
-    }
-    else {
-        reject(new GoodluckError('Random magic number wasn\'t guessed.', 777));
-    }
-}); };
+}); }; };
 /**
  * Create a PromiseInsist instance with an optional config of 30 retries and a static delay of 2000.
  * Default: retries = 10 , delay = 1000
@@ -68,7 +57,7 @@ var t1_ID = 't1', t2_ID = 't2';
  * Insist on guessing 5 to be completed within a max 30 retries, handle error if it still fails after that..
  */
 insist(t1_ID, //The handle
-guess5Callwrapper, //The promise wrapper to insist on.
+guessCallwrapper(5), //The promise wrapper to insist on.
 // A retry hook, executed on every attempt, passed in current attempt count and time consumed by the last retry
 function (attemptCount, timeConsumed) {
     console.log("Attempt #" + attemptCount + " done in " + timeConsumed + " ms");
@@ -85,18 +74,18 @@ function (attemptCount, timeConsumed) {
  */
 setTimeout(function () {
     cancel(t1_ID)
-        .then(function () { return insist(t2_ID, guess7Callwrapper, 
+        .then(function () { return insist(t2_ID, guessCallwrapper(7), 
     //no retry hook this time
     null, { delay: 2000, retries: 10, errorFilter: function (err) { return err.getErrorCode() === 777; } }); })
         .then(function (res) { console.log(t2_ID + " : Magic number " + res + " was guessed!"); })
         .catch(function (err) { return console.log(t2_ID + " : " + err); });
 }, getRand(3000, 5000));
 /**
- * After 4 seconds, replace the task of guessing 7 to the previous task of guessing 5
+ * After 4 seconds, replace the task of guessing 7 to yet another task of guessing 3
  * so that in case the current task is still retrying, the replaced task will be swapped
  * while maintaining the retries count. (useful in things like rate-limits etc.)
  */
 setTimeout(function () {
-    replaceTask(t2_ID, guess5Callwrapper);
+    replaceTask(t2_ID, guessCallwrapper(3));
 }, 4000);
 //# sourceMappingURL=general.js.map
