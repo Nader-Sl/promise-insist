@@ -1,8 +1,9 @@
 export declare type DelayFunc = ((maxRetries: number, retries: number) => number);
-export declare type PromiseRetriever<T> = () => Promise<T>;
+export declare type TaskRetriever<T> = () => Promise<T>;
 export declare type ID = number | string;
 export declare type ErrorFilter = (error: any) => boolean;
 export declare type CancelResolver = (any: any) => any;
+export declare type RetryCallback = ((attempts: number, timeConsumed: number) => void) | null | undefined;
 export declare type Config = {
     retries?: number;
     delay?: number | DelayFunc;
@@ -32,6 +33,8 @@ export default class PromiseInsist {
      * Optional configuration , if not specified the config passed in the constructor will be used,
      * if that latter wasn't specified either, the default will be used .
      */
-    insist<T>(id: ID, promiseRetriever: PromiseRetriever<T>, config?: Config): Promise<T>;
+    insist<T>(id: ID, taskRetriever: TaskRetriever<T>, retryHook?: RetryCallback, config?: Config): Promise<T>;
+    replaceTask<T>(id: ID, taskRetriever: TaskRetriever<T>): Promise<void>;
+    addRetryHook<T>(id: ID, callback: RetryCallback): Promise<void>;
     private _insist;
 }

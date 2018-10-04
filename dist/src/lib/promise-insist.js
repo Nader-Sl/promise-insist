@@ -76,6 +76,8 @@ var PromiseInsist = /** @class */ (function () {
         }
         this.insist = this.insist.bind(this);
         this.cancel = this.cancel.bind(this);
+        this.replaceTask = this.replaceTask.bind(this);
+        this.addRetryHook = this.addRetryHook.bind(this);
     }
     /**
      *
@@ -113,32 +115,54 @@ var PromiseInsist = /** @class */ (function () {
      * Optional configuration , if not specified the config passed in the constructor will be used,
      * if that latter wasn't specified either, the default will be used .
      */
-    PromiseInsist.prototype.insist = function (id, promiseRetriever, config) {
+    PromiseInsist.prototype.insist = function (id, taskRetriever, retryHook, config) {
         if (config === void 0) { config = this.globalConfig; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 if (this.taskMeta.has(id)) {
-                    throw new Error('Promise is still pending, if you want to cancel it call cancel(id).');
+                    throw new Error('Task is still pending, if you want to cancel it call cancel(id).');
                 }
-                this.taskMeta.set(id, { canceled: false, starttime: Date.now() });
-                return [2 /*return*/, this._insist(id, promiseRetriever, config, config.retries)];
+                this.taskMeta.set(id, { canceled: false, starttime: Date.now(), onRetry: retryHook });
+                return [2 /*return*/, this._insist(id, taskRetriever, config, config.retries)];
             });
         });
     };
-    PromiseInsist.prototype._insist = function (id, promiseRetriever, config, maxRetries) {
+    PromiseInsist.prototype.replaceTask = function (id, taskRetriever) {
+        var meta = this.taskMeta.get(id);
+        if (meta !== undefined) {
+            meta.task = taskRetriever;
+        }
+        return Promise.resolve();
+    };
+    PromiseInsist.prototype.addRetryHook = function (id, callback) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, err_1, metaData_1, delay_1;
+            var meta;
+            return __generator(this, function (_a) {
+                meta = this.taskMeta.get(id);
+                if (meta !== undefined) {
+                    meta.onRetry = callback;
+                }
+                return [2 /*return*/, Promise.resolve()];
+            });
+        });
+    };
+    PromiseInsist.prototype._insist = function (id, taskRetriever, config, maxRetries) {
+        return __awaiter(this, void 0, void 0, function () {
+            var taskStarttime, result, err_1, metaData_1, delay_1;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, promiseRetriever()];
+                        taskStarttime = Date.now();
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, taskRetriever()];
+                    case 2:
                         result = _a.sent();
                         this.taskMeta.delete(id);
                         return [2 /*return*/, result];
-                    case 2:
+                    case 3:
                         err_1 = _a.sent();
                         metaData_1 = this.taskMeta.get(id);
                         //required in case promise was revoked twice after cancel()
@@ -162,17 +186,22 @@ var PromiseInsist = /** @class */ (function () {
                         if (typeof delay_1 === 'function') {
                             delay_1 = delay_1(maxRetries, config.retries);
                         }
+                        if (metaData_1.onRetry) {
+                            metaData_1.onRetry(config.retries - 1, Math.max(taskStarttime - Date.now(), 0));
+                        }
                         if (this.verbose) {
                             console.log("Retrying " + id + " after " + delay_1 + " ms");
                         }
                         config.retries -= 1;
                         return [2 /*return*/, new Promise(function (resolve) {
-                                metaData_1.resolve = function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                                    return [2 /*return*/, resolve(this._insist(id, promiseRetriever, config, maxRetries))];
-                                }); }); };
+                                metaData_1.resolve = function () { return __awaiter(_this, void 0, void 0, function () {
+                                    return __generator(this, function (_a) {
+                                        return [2 /*return*/, resolve(this._insist(id, (metaData_1.task ? metaData_1.task : taskRetriever), config, maxRetries))];
+                                    });
+                                }); };
                                 metaData_1.timeout = setTimeout(metaData_1.resolve, delay_1);
                             })];
-                    case 3: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

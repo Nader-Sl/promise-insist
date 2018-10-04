@@ -31,6 +31,7 @@
         "no-multiline-string": false,
         "export-name": false,
         "no-empty-interface": false,
+        "no-unnecessary-class":false,
         "newline-before-return": false,
         "no-backbone-get-set-outside-model": false,
         "prefer-template": false,
