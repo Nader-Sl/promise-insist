@@ -30,7 +30,7 @@ function getRand(min, max): number {
   return Math.floor(Math.random() * (_max - _min)) + _min;
 }
 
-//re-usable call wrapper for insisting on getting a random number of value 5
+//re-usable call wrapper for insisting on getting a random number
 const guessCallwrapper = (guess: number) => () => new Promise<number>(
   (resolve, reject) => {
     setTimeout(() => { }, 2000);
