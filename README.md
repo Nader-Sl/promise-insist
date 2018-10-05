@@ -1,5 +1,5 @@
 # promise-insist
-[![NPM version](https://badge.fury.io/js/promise-insist.svg)](https://www.npmjs.com/package/promise-insist)
+[![NPM version](https://badge.fury.io/js/promise-insist.svg)](https://www.npmjs.com/package/promise-insist) [![Join the chat at https://gitter.im/PromiseInsist/Lobby](https://badges.gitter.im/PromiseInsist/Lobby.svg)](https://gitter.im/PromiseInsist/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
   <h3 align="center">"When someone fails to fullfill his promise, we'd rather insist about it."</h3>
  <br/>
 
