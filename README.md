@@ -1,7 +1,7 @@
 # promise-insist
 [![NPM version](https://badge.fury.io/js/promise-insist.svg)](https://www.npmjs.com/package/promise-insist)
-  <h3 align="center">But you promised..</h3>
-  <h4 align="center">"When someone fails to fullfill his promise, we'd rather insist about it."</h3>
+  <h2 align="center">But you promised..</h2>
+  <h3 align="center">"When someone fails to fullfill his promise, we'd rather insist about it."</h3>
  <br/>
 
 Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying, cancel-retrying and replacing promises based on error filtering and relational delays.
