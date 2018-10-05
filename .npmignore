@@ -1,5 +1,6 @@
 node_modules
 vscode
 src
+docs
 tsconfig.json
 tslint.json

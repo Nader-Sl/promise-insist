@@ -1,12 +1,32 @@
 # promise-insist
+[![NPM version](https://badge.fury.io/js/promise-insist.svg)](https://www.npmjs.com/package/promise-insist) 
+[![NPM Documentation](https://img.shields.io/badge/documentaion-1.0.0--rc.1-orange.svg)](https://nader-sl.github.io/promise-persist/) 
+[![Join the chat at https://gitter.im/PromiseInsist/Lobby](https://badges.gitter.im/PromiseInsist/Lobby.svg)](https://gitter.im/PromiseInsist/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-  <h3 align="center">But you promised..</h3>
-  <h4 align="center">"When someone fails to fullfill his promise, we'd rather insist about it."</h3>
+
+<br/>
+  <h3 align="center">"When someone fails to fullfill his promise, we'd rather insist about it."</h3>
  <br/>
 
 Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying, cancel-retrying and replacing promises based on error filtering and relational delays.
 
 This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.
+
+## Features
+* Retry (insist on) a promise **_retries_** times every **_delay_** only if the **_errorFilter_** 
+is whitelisted through global or task specific __config__
+
+* Cancle retrying(insisting) at any period of time.
+
+* Set a callback that executes per each retry per task (**_attemptNumber_**, **_timeConsumed_**) => **void**
+
+* Replace a task being retried by another one dynamically while maintaining the current insist configuration
+and retries count left (useful with things like rate-limits etc..)
+
+## Npm install
+```powershell
+npm i promise-insist --save
+```
 
 ## General Example
 ```typescript
@@ -126,8 +146,7 @@ ___
 #### You can also choose a preset for the **Delay** and **ErrorFilter** (you can write yours and submit a PR).
 ## Axios Example:
 ```typescript
-import PromiseInsist from 'promise-insist';
-import { ErrorFilters, Delays } from 'promise-insist/presets';
+import PromiseInsist, { Delays, ErrorFilters } from 'promise-insist';
 import axios from 'axios';
 
 // A preset of Delays error filters.
