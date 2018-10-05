@@ -2,16 +2,23 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "sourceMap": true,
-    "strictNullChecks": true,
     "module": "commonjs",
     "target": "es5",
     "esModuleInterop": true,
-    "noImplicitAny": false,
     "moduleResolution": "node",
     "declaration": true,
-    "lib": ["es6", "dom"]
+    "strict": true,
+    "noImplicitAny": false,
+    "lib": [
+      "es6",
+      "dom"
+    ]
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.spec.ts"
   ]
 }
