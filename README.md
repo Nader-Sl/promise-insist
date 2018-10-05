@@ -8,6 +8,17 @@ Promise-Insist provides flexible functionality to insist on fullfilling a condit
 
 This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.
 
+## Features
+* Retry (insist on) a promise **retries** times every **delay** only if the **errorFilter** 
+is whitelisted through global or task specific __config__
+
+* Cancle retrying(insisting) at any period of time.
+
+* Set a callback that executes per each retry per task (**attemptNumber**,**timeConsumed**) => **void**
+
+* Replace a task being retried by another one dynamically while maintaining the current insist configuration
+and retries count left (useful with things like rate-limits etc..)
+
 ## Npm install
 ```powershell
 npm i promise-insist --save
