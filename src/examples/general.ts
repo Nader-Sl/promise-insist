@@ -1,5 +1,5 @@
 
-import PromiseInsist, { Insist } from '..';
+import PromiseInsist from '..';
 
 function getRand(min, max): number {
   const _min = Math.ceil(min);

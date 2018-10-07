@@ -1,5 +1,5 @@
 
-import PromiseInsist, { Delays, ErrorFilters } from '..';
+import PromiseInsist, { Delays, ErrorFilters } from '../';
 import axios from 'axios';
 
 // A preset of Delays error filters.
@@ -10,19 +10,16 @@ const { isRetryable, isServerError, isNetError, isSafe, isIdempotent } = ErrorFi
 //Create an Axios PromiseInsist instance with 20 retries per request , exponential delay and only retry if error is a server error.
 const {
   insist,
-  cancelInsist,
-  replaceTask
-} = new PromiseInsist({ retries: 20, delay: ExponentialDelay(), errorFilter: isRetryable });
+  cancelInsist
+} = new PromiseInsist({ retries: 20, delay: ExponentialDelay(), errorFilter: (isRetryable) }).setVerbose(true);
 
-const t1_ID = 'doSomething';
-const t2_ID = 'doSomethingElse';
-
-export async function runTest() {
+const insistGET1 = insist(
+  () => axios.get('http://localhost:1337'),
+  (attemptCount, timeConsumed) => { console.log(`Attempt #${attemptCount} done in ${timeConsumed} ms`); }
+);
+async function runTest() {
   try {
-    const res = await insist(
-      () => axios.get('http://localhost:1337'),
-      (attemptCount, timeConsumed) => { console.log(`Attempt #${attemptCount} done in ${timeConsumed} ms`); }
-    );
+    const res = await insistGET1;
     console.log(res);
     console.log('^ do something with response.');
   } catch (err) { console.log(err); }
@@ -31,7 +28,8 @@ runTest();
 setTimeout(
   async () => {
     try {
-      cancelInsist(t1_ID);
+      cancelInsist(insistGET1);
+      console.log('canceled insistGET1');
       const res = await insist(() => axios.get('http://localhost:1337/important2'));
       console.log(res);
       console.log('^ do something different now.');
