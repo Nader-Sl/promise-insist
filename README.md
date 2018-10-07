@@ -6,7 +6,7 @@
 
 
 <br/>
-  <h3 align="center">"When someone fails to fullfill his promise, we'd rather insist about it."</h3>
+  <h3 align="center">“When someone promises you and doesn’t deliver, you’d better insist.”</h3>
  <br/>
 
 Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying, cancel-retrying and replacing promises based on error filtering and relational delays.
