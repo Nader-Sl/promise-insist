@@ -66,18 +66,21 @@
 			<div class="tsd-panel tsd-typography">
 				<h1 id="promise-insist">promise-insist</h1>
 				<p><a href="https://www.npmjs.com/package/promise-insist"><img src="https://badge.fury.io/js/promise-insist.svg" alt="NPM version"></a>
-					<h3 align="center">&quot;When someone fails to fullfill his promise, we&#39;d rather insist about it.&quot;</h3>
-				<br/></p>
+					<a href="https://travis-ci.org/Nader-Sl/promise-insist"><img src="https://travis-ci.org/Nader-Sl/promise-insist.svg?branch=master" alt="Travis CI Build"></a>
+				<a href="https://nader-sl.github.io/promise-persist/"><img src="https://img.shields.io/badge/documentaion-1.0.0--rc.1-orange.svg" alt="NPM Documentation"></a> </p>
+				<br/>
+				<h3 align="center">“When someone promises you and doesn’t deliver, you’d better insist.”</h3>
+				<br/>
 				<p>Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying, cancel-retrying and replacing promises based on error filtering and relational delays.</p>
 				<p>This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.</p>
 				<h2 id="features">Features</h2>
 				<ul>
-					<li><p>Retry (insist on) a promise <strong>retries</strong> times every <strong>delay</strong> only if the <strong>errorFilter</strong>
+					<li><p>Retry (insist on) a promise <strong><em>retries</em></strong> times every <strong><em>delay</em></strong> only if the <strong><em>errorFilter</em></strong>
 						is whitelisted through global or task specific <strong>config</strong></p>
 					</li>
 					<li><p>Cancle retrying(insisting) at any period of time.</p>
 					</li>
-					<li><p>Set a callback that executes per each retry per task (<strong>attemptNumber</strong>,<strong>timeConsumed</strong>) =&gt; <strong>void</strong></p>
+					<li><p>Set a callback that executes per each retry per task (<strong><em>attemptNumber</em></strong>, <strong><em>timeConsumed</em></strong>) =&gt; <strong>void</strong></p>
 					</li>
 					<li><p>Replace a task being retried by another one dynamically while maintaining the current insist configuration
 						and retries count left (useful with things like rate-limits etc..)</p>
@@ -88,33 +91,21 @@
 				<h2 id="general-example">General Example</h2>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> PromiseInsist <span class="hljs-keyword">from</span> <span class="hljs-string">'promise-insist'</span>
 
-<span class="hljs-keyword">class</span> GoodluckError <span class="hljs-keyword">extends</span> <span class="hljs-built_in">Error</span> {
-  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">msg: <span class="hljs-built_in">string</span>, errorCode: <span class="hljs-built_in">number</span></span>) {
-    <span class="hljs-keyword">super</span>(msg);
-    <span class="hljs-keyword">this</span>.errorCode = errorCode;
-    <span class="hljs-built_in">Object</span>.setPrototypeOf(<span class="hljs-keyword">this</span>, GoodluckError.prototype);
-  }
-  <span class="hljs-keyword">private</span> errorCode: <span class="hljs-built_in">number</span>;
-  <span class="hljs-keyword">public</span> getErrorCode() {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.errorCode;
-  }
-}
-
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getRand</span>(<span class="hljs-params">min, max</span>): <span class="hljs-title">number</span> </span>{
   <span class="hljs-keyword">const</span> _min = <span class="hljs-built_in">Math</span>.ceil(min);
   <span class="hljs-keyword">const</span> _max = <span class="hljs-built_in">Math</span>.floor(max);
   <span class="hljs-keyword">return</span> <span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * (_max - _min)) + _min;
 }
 
-<span class="hljs-comment">//re-usable call wrapper for insisting on getting a random number</span>
-<span class="hljs-keyword">const</span> guessCallwrapper = <span class="hljs-function">(<span class="hljs-params">guess: <span class="hljs-built_in">number</span></span>) =&gt;</span> () =&gt; <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">number</span>&gt;(
+<span class="hljs-comment">//re-usable call wrapper for insisting on getting a random number of value 5</span>
+<span class="hljs-keyword">const</span> guessCallwrapper = <span class="hljs-function">(<span class="hljs-params">guess: <span class="hljs-built_in">number</span></span>) =&gt;</span> () =&gt; <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(
   <span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> {
-    setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { }, <span class="hljs-number">2000</span>);
+
     <span class="hljs-keyword">const</span> magicNumber = getRand(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>);
     <span class="hljs-keyword">if</span> (magicNumber === guess) {
       resolve(magicNumber);
     } <span class="hljs-keyword">else</span> {
-      reject(<span class="hljs-keyword">new</span> GoodluckError(<span class="hljs-string">'Random magic number wasn\'t guessed.'</span>, <span class="hljs-number">777</span>));
+      reject(<span class="hljs-number">777</span>);
     }
   });
 
@@ -122,25 +113,49 @@
  * Create a PromiseInsist instance with an optional config of 30 retries and a static delay of 2000.
  * Default: retries = 10 , delay = 1000
  */</span>
-<span class="hljs-keyword">const</span> { insist, cancel, replaceTask } = <span class="hljs-keyword">new</span> PromiseInsist({ retries: <span class="hljs-number">30</span>, delay: <span class="hljs-number">2000</span> });
-
-<span class="hljs-comment">// Handles to be assigned per insisting promise.</span>
-<span class="hljs-keyword">const</span> t1_ID = <span class="hljs-string">'t1'</span>, t2_ID = <span class="hljs-string">'t2'</span>;
+<span class="hljs-keyword">const</span> {
+  insist,
+  cancelInsist,
+  cancelAllInsists,
+  replaceTask
+} = <span class="hljs-keyword">new</span> PromiseInsist({ retries: <span class="hljs-number">30</span>, delay: <span class="hljs-number">2000</span> });
 
 <span class="hljs-comment">/**
- * Insist on guessing 5 to be completed within a max 30 retries, handle error if it still fails after that..
+ * Create an insisting promise to guess #5 to be completed within a max 30 retries,
+ * define retry hook to log on each retry then handle error if it still fails after that..
  */</span>
-
-insist(
-  t1_ID, <span class="hljs-comment">//The handle</span>
+<span class="hljs-keyword">const</span> insist1 = insist(
   guessCallwrapper(<span class="hljs-number">5</span>), <span class="hljs-comment">//The promise wrapper to insist on.</span>
   <span class="hljs-comment">// A retry hook, executed on every attempt, passed in current attempt count and time consumed by the last retry</span>
   (attemptCount, timeConsumed) =&gt; {
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Attempt #<span class="hljs-subst">${attemptCount}</span> done in <span class="hljs-subst">${timeConsumed}</span> ms`</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Insist1: Attempt #<span class="hljs-subst">${attemptCount}</span> done in <span class="hljs-subst">${timeConsumed}</span> ms`</span>);
   }
-)
-  .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${t1_ID}</span> : Magic number <span class="hljs-subst">${res}</span> was guessed!`</span>); })
-  .catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${t1_ID}</span>: <span class="hljs-subst">${err}</span>`</span>));
+);
+
+<span class="hljs-comment">/**
+ * Create an insisting promise to guess #7 to be completed within a max 7 retries,
+ * an exponential delay, and error filter to retry on error (777) only.
+ */</span>
+<span class="hljs-keyword">const</span> insist2 = insist(
+  guessCallwrapper(<span class="hljs-number">7</span>),
+  <span class="hljs-literal">null</span>, <span class="hljs-comment">//no retry hook this time</span>
+  {<span class="hljs-comment">// Explicitly specify config.</span>
+    delay: <span class="hljs-number">2000</span>,
+    retries: <span class="hljs-number">10</span>,
+    errorFilter: <span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> err === <span class="hljs-number">777</span>
+  }
+);
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runTaskInsist1</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">try</span> {
+    <span class="hljs-keyword">const</span> res = <span class="hljs-keyword">await</span> insist1;
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Insist1 : Magic number <span class="hljs-subst">${res}</span> was guessed!`</span>);
+  } <span class="hljs-keyword">catch</span> (err) {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Insist1: Magic number wasn't guessed.. <span class="hljs-subst">${err}</span>`</span>);
+  }
+}
+
+runTaskInsist1();
 
 <span class="hljs-comment">/**
  * Retry cancelation test:
@@ -148,57 +163,38 @@ insist(
  * After executing the guess 5 insisting promise,let's wait (3,5) seconds, then cancel
  * the retrying process incase it was still active, then insist on guessing another number: 7
  * this time defining a custom configuration per this insist and add a whitelisting error filter
- * tomake sure it only retries if thereturned error code was 777.
+ * to make sure it only retries if thereturned error code was 777.
  */</span>
-setTimeout(
-  <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    cancel(t1_ID)
-      .then(
-        <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> insist(
-          t2_ID,
-          guessCallwrapper(<span class="hljs-number">7</span>),
-          <span class="hljs-comment">//no retry hook this time</span>
-          <span class="hljs-literal">null</span>,
 
-          { delay: <span class="hljs-number">2000</span>, retries: <span class="hljs-number">10</span>, errorFilter: <span class="hljs-function">(<span class="hljs-params">err: GoodluckError</span>) =&gt;</span> err.getErrorCode() === <span class="hljs-number">777</span> }
-        )
-      )
-      .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${t2_ID}</span> : Magic number <span class="hljs-subst">${res}</span> was guessed!`</span>); })
-      .catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${t2_ID}</span> : <span class="hljs-subst">${err}</span>`</span>));
-  },
-  getRand(<span class="hljs-number">3000</span>, <span class="hljs-number">5000</span>));
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runTaskInsist2</span>(<span class="hljs-params"></span>) </span>{
+  setTimeout(
+    <span class="hljs-keyword">async</span> () =&gt; {
+      <span class="hljs-keyword">try</span> {
+        <span class="hljs-keyword">await</span> cancelInsist(insist1);
+        <span class="hljs-keyword">const</span> res = <span class="hljs-keyword">await</span> insist2;
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Insist2 : Magic number <span class="hljs-subst">${res}</span> was guessed!`</span>);
+      } <span class="hljs-keyword">catch</span> (err) { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Insist2: Magic number wasn't guessed.. :<span class="hljs-subst">${err}</span>`</span>); }
+    },
+    getRand(<span class="hljs-number">3000</span>, <span class="hljs-number">4000</span>));
+}
 
-<span class="hljs-comment">/**
- * After 4 seconds, replace the task of guessing 7 to yet another task of guessing 3
- * so that in case the current task is still retrying, the replaced task will be swapped
- * while maintaining the retries count. (useful in things like rate-limits etc.)
- */</span>
-setTimeout(
-  <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    replaceTask(t2_ID, guessCallwrapper(<span class="hljs-number">3</span>));
-  },
-  <span class="hljs-number">4000</span>);</code></pre>
+runTaskInsist2();
+</code></pre>
 				<h2 id="example-output">Example Output</h2>
-				<pre><code class="language-powershell">Attempt <span class="hljs-comment">#29 done in 0 ms</span>
-Retrying t1 after <span class="hljs-number">2000</span> ms
-Attempt <span class="hljs-comment">#28 done in 0 ms</span>
-Retrying t1 after <span class="hljs-number">2000</span> ms
-Attempt <span class="hljs-comment">#27 done in 0 ms</span>
-Retrying t1 after <span class="hljs-number">2000</span> ms
-Canceled task of ID : t1 (~ <span class="hljs-number">4556</span> ms)
-Retrying t2 after <span class="hljs-number">2000</span> ms
-t1: Error: Random magic number wasn<span class="hljs-string">'t guessed.
-Retrying t2 after 2000 ms
-Retrying t2 after 2000 ms
-Retrying t2 after 2000 ms
-Retrying t2 after 2000 ms
-t2 : Magic number 3 was guessed!
-^ guessed number would'</span>ve been <span class="hljs-number">7</span> <span class="hljs-keyword">if</span> we didn<span class="hljs-string">'t replace the second task again.</span></code></pre>
+				<pre><code class="language-powershell">Insist1: Attempt <span class="hljs-comment">#29 done in 0 ms</span>
+Insist2: Attempt <span class="hljs-comment">#9 done in 0 ms</span>
+Insist1: Attempt <span class="hljs-comment">#28 done in 0 ms</span>
+Insist2: Attempt <span class="hljs-comment">#8 done in 0 ms</span>
+Canceled Insist1 ...
+Insist1: Magic number wasn<span class="hljs-string">'t guessed.. 777
+Insist2: Attempt #7 done in 0 ms
+Insist2: Attempt #6 done in 0 ms
+Insist2: Attempt #5 done in 0 ms
+Insist2 : Magic number 7 was guessed!</span></code></pre>
 				<hr>
 				<h4 id="you-can-also-choose-a-preset-for-the-delay-and-errorfilter-you-can-write-yours-and-submit-a-pr-">You can also choose a preset for the <strong>Delay</strong> and <strong>ErrorFilter</strong> (you can write yours and submit a PR).</h4>
 				<h2 id="axios-example-">Axios Example:</h2>
-				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> PromiseInsist <span class="hljs-keyword">from</span> <span class="hljs-string">'promise-insist'</span>;
-<span class="hljs-keyword">import</span> { ErrorFilters, Delays } <span class="hljs-keyword">from</span> <span class="hljs-string">'promise-insist/presets'</span>;
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> PromiseInsist, { Delays, ErrorFilters } <span class="hljs-keyword">from</span> <span class="hljs-string">'promise-insist'</span>;
 <span class="hljs-keyword">import</span> axios <span class="hljs-keyword">from</span> <span class="hljs-string">'axios'</span>;
 
 <span class="hljs-comment">// A preset of Delays error filters.</span>
@@ -209,35 +205,35 @@ t2 : Magic number 3 was guessed!
 <span class="hljs-comment">//Create an Axios PromiseInsist instance with 20 retries per request , exponential delay and only retry if error is a server error.</span>
 <span class="hljs-keyword">const</span> {
   insist,
-  cancel,
-  replaceTask
-} = <span class="hljs-keyword">new</span> PromiseInsist({ retries: <span class="hljs-number">20</span>, delay: ExponentialDelay(), errorFilter: isRetryable });
+  cancelInsist
+} = <span class="hljs-keyword">new</span> PromiseInsist({ retries: <span class="hljs-number">20</span>, delay: ExponentialDelay(), errorFilter: (isRetryable) }).setVerbose(<span class="hljs-literal">true</span>);
 
-<span class="hljs-keyword">const</span> t1_ID = <span class="hljs-string">'doSomething'</span>;
-<span class="hljs-keyword">const</span> t2_ID = <span class="hljs-string">'doSomethingElse'</span>;
-
-insist(
-  t1_ID,
+<span class="hljs-keyword">const</span> insistGET1 = insist(
   <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> axios.get(<span class="hljs-string">'http://localhost:1337'</span>),
   <span class="hljs-function">(<span class="hljs-params">attemptCount, timeConsumed</span>) =&gt;</span> { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Attempt #<span class="hljs-subst">${attemptCount}</span> done in <span class="hljs-subst">${timeConsumed}</span> ms`</span>); }
-)
-  .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> { <span class="hljs-built_in">console</span>.log(res); <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'^ do something with response.'</span>); })
-  .catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(err));
-
+);
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runTest</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">try</span> {
+    <span class="hljs-keyword">const</span> res = <span class="hljs-keyword">await</span> insistGET1;
+    <span class="hljs-built_in">console</span>.log(res);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'^ do something with response.'</span>);
+  } <span class="hljs-keyword">catch</span> (err) { <span class="hljs-built_in">console</span>.log(err); }
+}
+runTest();
 setTimeout(
-  <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    cancel(t1_ID)
-      .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> insist(t2_ID, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> axios.get(<span class="hljs-string">'http://localhost:1337/important2'</span>)))
-      .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
-        <span class="hljs-built_in">console</span>.log(res);
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'^ do something different now.'</span>);
-      })
-      .catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(err));
+  <span class="hljs-keyword">async</span> () =&gt; {
+    <span class="hljs-keyword">try</span> {
+      cancelInsist(insistGET1);
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'canceled insistGET1'</span>);
+      <span class="hljs-keyword">const</span> res = <span class="hljs-keyword">await</span> insist(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> axios.get(<span class="hljs-string">'http://localhost:1337/important2'</span>));
+      <span class="hljs-built_in">console</span>.log(res);
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'^ do something different now.'</span>);
+    } <span class="hljs-keyword">catch</span> (err) {
+      <span class="hljs-built_in">console</span>.log(err);
+    }
+
   },
   <span class="hljs-number">5000</span>);
-
-
-
 </code></pre>
 			</div>
 		</div>
