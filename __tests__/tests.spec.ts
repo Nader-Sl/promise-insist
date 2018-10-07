@@ -1,5 +1,5 @@
 
-import PromiseInsist, { Insist } from '..';
+import PromiseInsist from '../lib/promise-insist';
 
 const maxRetries = 10;
 const delay = 50;

@@ -1,0 +1,346 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Promise-Insist</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">Promise-Insist</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> Promise-Insist</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="promise-insist">promise-insist</h1>
+				<p><a href="https://www.npmjs.com/package/promise-insist"><img src="https://badge.fury.io/js/promise-insist.svg" alt="NPM version"></a>
+					<h3 align="center">&quot;When someone fails to fullfill his promise, we&#39;d rather insist about it.&quot;</h3>
+				<br/></p>
+				<p>Promise-Insist provides flexible functionality to insist on fullfilling a conditional promise by retrying, cancel-retrying and replacing promises based on error filtering and relational delays.</p>
+				<p>This is a useful solution for more advanced scenarios when you want to be able to concurrently await many promises and you want to retry each with specific or global configuration and conditions, and you want at any point to be able to cancle retrying a certain task maybe because it collides with another concurrent task of a higher priority.</p>
+				<h2 id="features">Features</h2>
+				<ul>
+					<li><p>Retry (insist on) a promise <strong>retries</strong> times every <strong>delay</strong> only if the <strong>errorFilter</strong>
+						is whitelisted through global or task specific <strong>config</strong></p>
+					</li>
+					<li><p>Cancle retrying(insisting) at any period of time.</p>
+					</li>
+					<li><p>Set a callback that executes per each retry per task (<strong>attemptNumber</strong>,<strong>timeConsumed</strong>) =&gt; <strong>void</strong></p>
+					</li>
+					<li><p>Replace a task being retried by another one dynamically while maintaining the current insist configuration
+						and retries count left (useful with things like rate-limits etc..)</p>
+					</li>
+				</ul>
+				<h2 id="npm-install">Npm install</h2>
+				<pre><code class="language-powershell">npm i promise-insist --save</code></pre>
+				<h2 id="general-example">General Example</h2>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> PromiseInsist <span class="hljs-keyword">from</span> <span class="hljs-string">'promise-insist'</span>
+
+<span class="hljs-keyword">class</span> GoodluckError <span class="hljs-keyword">extends</span> <span class="hljs-built_in">Error</span> {
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">msg: <span class="hljs-built_in">string</span>, errorCode: <span class="hljs-built_in">number</span></span>) {
+    <span class="hljs-keyword">super</span>(msg);
+    <span class="hljs-keyword">this</span>.errorCode = errorCode;
+    <span class="hljs-built_in">Object</span>.setPrototypeOf(<span class="hljs-keyword">this</span>, GoodluckError.prototype);
+  }
+  <span class="hljs-keyword">private</span> errorCode: <span class="hljs-built_in">number</span>;
+  <span class="hljs-keyword">public</span> getErrorCode() {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.errorCode;
+  }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getRand</span>(<span class="hljs-params">min, max</span>): <span class="hljs-title">number</span> </span>{
+  <span class="hljs-keyword">const</span> _min = <span class="hljs-built_in">Math</span>.ceil(min);
+  <span class="hljs-keyword">const</span> _max = <span class="hljs-built_in">Math</span>.floor(max);
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * (_max - _min)) + _min;
+}
+
+<span class="hljs-comment">//re-usable call wrapper for insisting on getting a random number</span>
+<span class="hljs-keyword">const</span> guessCallwrapper = <span class="hljs-function">(<span class="hljs-params">guess: <span class="hljs-built_in">number</span></span>) =&gt;</span> () =&gt; <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">number</span>&gt;(
+  <span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> {
+    setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { }, <span class="hljs-number">2000</span>);
+    <span class="hljs-keyword">const</span> magicNumber = getRand(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>);
+    <span class="hljs-keyword">if</span> (magicNumber === guess) {
+      resolve(magicNumber);
+    } <span class="hljs-keyword">else</span> {
+      reject(<span class="hljs-keyword">new</span> GoodluckError(<span class="hljs-string">'Random magic number wasn\'t guessed.'</span>, <span class="hljs-number">777</span>));
+    }
+  });
+
+<span class="hljs-comment">/**
+ * Create a PromiseInsist instance with an optional config of 30 retries and a static delay of 2000.
+ * Default: retries = 10 , delay = 1000
+ */</span>
+<span class="hljs-keyword">const</span> { insist, cancel, replaceTask } = <span class="hljs-keyword">new</span> PromiseInsist({ retries: <span class="hljs-number">30</span>, delay: <span class="hljs-number">2000</span> });
+
+<span class="hljs-comment">// Handles to be assigned per insisting promise.</span>
+<span class="hljs-keyword">const</span> t1_ID = <span class="hljs-string">'t1'</span>, t2_ID = <span class="hljs-string">'t2'</span>;
+
+<span class="hljs-comment">/**
+ * Insist on guessing 5 to be completed within a max 30 retries, handle error if it still fails after that..
+ */</span>
+
+insist(
+  t1_ID, <span class="hljs-comment">//The handle</span>
+  guessCallwrapper(<span class="hljs-number">5</span>), <span class="hljs-comment">//The promise wrapper to insist on.</span>
+  <span class="hljs-comment">// A retry hook, executed on every attempt, passed in current attempt count and time consumed by the last retry</span>
+  (attemptCount, timeConsumed) =&gt; {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Attempt #<span class="hljs-subst">${attemptCount}</span> done in <span class="hljs-subst">${timeConsumed}</span> ms`</span>);
+  }
+)
+  .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${t1_ID}</span> : Magic number <span class="hljs-subst">${res}</span> was guessed!`</span>); })
+  .catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${t1_ID}</span>: <span class="hljs-subst">${err}</span>`</span>));
+
+<span class="hljs-comment">/**
+ * Retry cancelation test:
+ *
+ * After executing the guess 5 insisting promise,let's wait (3,5) seconds, then cancel
+ * the retrying process incase it was still active, then insist on guessing another number: 7
+ * this time defining a custom configuration per this insist and add a whitelisting error filter
+ * tomake sure it only retries if thereturned error code was 777.
+ */</span>
+setTimeout(
+  <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    cancel(t1_ID)
+      .then(
+        <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> insist(
+          t2_ID,
+          guessCallwrapper(<span class="hljs-number">7</span>),
+          <span class="hljs-comment">//no retry hook this time</span>
+          <span class="hljs-literal">null</span>,
+
+          { delay: <span class="hljs-number">2000</span>, retries: <span class="hljs-number">10</span>, errorFilter: <span class="hljs-function">(<span class="hljs-params">err: GoodluckError</span>) =&gt;</span> err.getErrorCode() === <span class="hljs-number">777</span> }
+        )
+      )
+      .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${t2_ID}</span> : Magic number <span class="hljs-subst">${res}</span> was guessed!`</span>); })
+      .catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${t2_ID}</span> : <span class="hljs-subst">${err}</span>`</span>));
+  },
+  getRand(<span class="hljs-number">3000</span>, <span class="hljs-number">5000</span>));
+
+<span class="hljs-comment">/**
+ * After 4 seconds, replace the task of guessing 7 to yet another task of guessing 3
+ * so that in case the current task is still retrying, the replaced task will be swapped
+ * while maintaining the retries count. (useful in things like rate-limits etc.)
+ */</span>
+setTimeout(
+  <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    replaceTask(t2_ID, guessCallwrapper(<span class="hljs-number">3</span>));
+  },
+  <span class="hljs-number">4000</span>);</code></pre>
+				<h2 id="example-output">Example Output</h2>
+				<pre><code class="language-powershell">Attempt <span class="hljs-comment">#29 done in 0 ms</span>
+Retrying t1 after <span class="hljs-number">2000</span> ms
+Attempt <span class="hljs-comment">#28 done in 0 ms</span>
+Retrying t1 after <span class="hljs-number">2000</span> ms
+Attempt <span class="hljs-comment">#27 done in 0 ms</span>
+Retrying t1 after <span class="hljs-number">2000</span> ms
+Canceled task of ID : t1 (~ <span class="hljs-number">4556</span> ms)
+Retrying t2 after <span class="hljs-number">2000</span> ms
+t1: Error: Random magic number wasn<span class="hljs-string">'t guessed.
+Retrying t2 after 2000 ms
+Retrying t2 after 2000 ms
+Retrying t2 after 2000 ms
+Retrying t2 after 2000 ms
+t2 : Magic number 3 was guessed!
+^ guessed number would'</span>ve been <span class="hljs-number">7</span> <span class="hljs-keyword">if</span> we didn<span class="hljs-string">'t replace the second task again.</span></code></pre>
+				<hr>
+				<h4 id="you-can-also-choose-a-preset-for-the-delay-and-errorfilter-you-can-write-yours-and-submit-a-pr-">You can also choose a preset for the <strong>Delay</strong> and <strong>ErrorFilter</strong> (you can write yours and submit a PR).</h4>
+				<h2 id="axios-example-">Axios Example:</h2>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> PromiseInsist <span class="hljs-keyword">from</span> <span class="hljs-string">'promise-insist'</span>;
+<span class="hljs-keyword">import</span> { ErrorFilters, Delays } <span class="hljs-keyword">from</span> <span class="hljs-string">'promise-insist/presets'</span>;
+<span class="hljs-keyword">import</span> axios <span class="hljs-keyword">from</span> <span class="hljs-string">'axios'</span>;
+
+<span class="hljs-comment">// A preset of Delays error filters.</span>
+<span class="hljs-keyword">const</span> { ExponentialDelay } = Delays;
+<span class="hljs-comment">//A Preset of Axios error filters.</span>
+<span class="hljs-keyword">const</span> { isRetryable, isServerError, isNetError, isSafe, isIdempotent } = ErrorFilters.AxiosErrorFilters;
+
+<span class="hljs-comment">//Create an Axios PromiseInsist instance with 20 retries per request , exponential delay and only retry if error is a server error.</span>
+<span class="hljs-keyword">const</span> {
+  insist,
+  cancel,
+  replaceTask
+} = <span class="hljs-keyword">new</span> PromiseInsist({ retries: <span class="hljs-number">20</span>, delay: ExponentialDelay(), errorFilter: isRetryable });
+
+<span class="hljs-keyword">const</span> t1_ID = <span class="hljs-string">'doSomething'</span>;
+<span class="hljs-keyword">const</span> t2_ID = <span class="hljs-string">'doSomethingElse'</span>;
+
+insist(
+  t1_ID,
+  <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> axios.get(<span class="hljs-string">'http://localhost:1337'</span>),
+  <span class="hljs-function">(<span class="hljs-params">attemptCount, timeConsumed</span>) =&gt;</span> { <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Attempt #<span class="hljs-subst">${attemptCount}</span> done in <span class="hljs-subst">${timeConsumed}</span> ms`</span>); }
+)
+  .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> { <span class="hljs-built_in">console</span>.log(res); <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'^ do something with response.'</span>); })
+  .catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(err));
+
+setTimeout(
+  <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    cancel(t1_ID)
+      .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> insist(t2_ID, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> axios.get(<span class="hljs-string">'http://localhost:1337/important2'</span>)))
+      .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
+        <span class="hljs-built_in">console</span>.log(res);
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'^ do something different now.'</span>);
+      })
+      .catch(<span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(err));
+  },
+  <span class="hljs-number">5000</span>);
+
+
+
+</code></pre>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class="label tsd-is-external">
+						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_lib_promise_insist_.html">"lib/promise-<wbr>insist"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_presets_delays_.html">"presets/delays"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_presets_index_.html">"presets/index"</a>
+					</li>
+					<li class="label tsd-is-external">
+						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_presets_error_filters_axios_index_.html">"presets/error-<wbr>filters/axios/index"</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_presets_error_filters_index_.html">"presets/error-<wbr>filters/index"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>
