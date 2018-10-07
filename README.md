@@ -1,5 +1,6 @@
 # promise-insist
 [![NPM version](https://badge.fury.io/js/promise-insist.svg)](https://www.npmjs.com/package/promise-insist) 
+[![Travis CI Build](https://travis-ci.org/Nader-Sl/promise-insist.svg?branch=master)](https://travis-ci.org/Nader-Sl/promise-insist) 
 [![NPM Documentation](https://img.shields.io/badge/documentaion-1.0.0--rc.1-orange.svg)](https://nader-sl.github.io/promise-persist/) 
 [![Join the chat at https://gitter.im/PromiseInsist/Lobby](https://badges.gitter.im/PromiseInsist/Lobby.svg)](https://gitter.im/PromiseInsist/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
