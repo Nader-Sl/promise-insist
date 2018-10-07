@@ -52,6 +52,7 @@
         "no-object-literal-type-assertion": false,
         "no-typeof-undefined": false,
         "no-bitwise": false,
-        "no-string-based-set-timeout": false
+        "no-string-based-set-timeout": false,
+        "mocha-no-side-effect-code":false
     }
 }

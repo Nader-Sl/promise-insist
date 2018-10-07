@@ -1,3 +1,5 @@
+import { v4 } from 'uuid';
+
 export type DelayFunc = ((maxRetries: number, retries: number) => number);
 export type TaskRetriever<T> = () => Promise<T>;
 export type ID = number | string;
@@ -21,6 +23,38 @@ interface MetaData {
     resolve?;
 }
 
+export class Insist<T> implements Promise<T> {
+    private _promise: Promise<T>;
+    private _id;
+
+    constructor(id: ID, promise: Promise<T>) {
+        this._id = id;
+        this._promise = promise;
+    }
+
+    public getID() {
+        return this._id;
+    }
+
+    public then<TResult1 = T, TResult2 = never>(
+        onfulfilled?: ((value: T) =>
+            TResult1 | PromiseLike<TResult1>) | undefined | null,
+        onrejected?: ((reason: any) =>
+            TResult2 | PromiseLike<TResult2>) | undefined | null
+    ): Promise<TResult1 | TResult2> {
+        return this._promise.then(onfulfilled, onrejected);
+    }
+
+    public catch<TResult = never>(
+        onrejected?: ((reason: any) =>
+            TResult | PromiseLike<TResult>) | undefined | null
+    ): Promise<T | TResult> {
+        return this._promise.then(onrejected);
+    }
+
+    public [Symbol.toStringTag]: 'Promise';
+}
+
 export default class PromiseInsist {
 
     //global config per instance.
@@ -31,7 +65,7 @@ export default class PromiseInsist {
     };
 
     private taskMeta: Map<number | string, MetaData> = new Map();
-    public verbose: boolean = true;
+    private verbose: boolean = false;
 
     /**
      *
@@ -47,31 +81,45 @@ export default class PromiseInsist {
             if (delay !== undefined) { this.globalConfig.delay = delay; }
             if (errorFilter !== undefined) { this.globalConfig.errorFilter = errorFilter; }
         }
+        this.setVerbose = this.setVerbose.bind(this);
         this.insist = this.insist.bind(this);
-        this.cancel = this.cancel.bind(this);
+        this.cancelInsist = this.cancelInsist.bind(this);
+        this.cancelAllInsists = this.cancelAllInsists.bind(this);
         this.replaceTask = this.replaceTask.bind(this);
-        this.addRetryHook = this.addRetryHook.bind(this);
+        this.setRetryHook = this.setRetryHook.bind(this);
     }
 
+    public setVerbose(verbose: boolean) {
+        this.verbose = verbose;
+        return this;
+    }
     /**
      *
-     * @param id the id associated with the retryable promise/task
+     * @param ids the ids associated with the retryable promises/tasks
      */
 
-    public async cancel(id) {
-        return new Promise(async (resolve) => {
-            const meta = this.taskMeta.get(id);
-            if (meta === undefined ||
-                !('timeout' in meta) ||
-                meta.canceled === true
-            ) {
-                resolve();
-            } else {
-                clearTimeout(meta.timeout);
-                this.taskMeta.set(id, { ...meta, canceled: true, cancelResolver: resolve });
-                meta.resolve();
-            }
+    public async cancelInsist<T>(...insists: (Insist<T> | ID)[]) {
+        insists.forEach(async (insist) => {
+            const id = insist instanceof Insist ? insist.getID() : insist;
+            await new Promise(async (resolve) => {
+                const meta = this.taskMeta.get(id);
+                if (meta === undefined ||
+                    !('timeout' in meta) ||
+                    meta.canceled === true
+                ) {
+                    resolve();
+                } else {
+                    clearTimeout(meta.timeout);
+                    this.taskMeta.set(id, { ...meta, canceled: true, cancelResolver: resolve });
+                    meta.resolve();
+                }
+            });
         });
+        return this;
+    }
+
+    public async cancelAllInsists() {
+        return this.cancelInsist(...Array.from(this.taskMeta.keys()));
     }
 
     /**
@@ -83,32 +131,29 @@ export default class PromiseInsist {
      * if that latter wasn't specified either, the default will be used .
      */
 
-    public async insist<T>(
-        id: ID,
+    public insist<T>(
         taskRetriever: TaskRetriever<T>,
         retryHook?: RetryCallback,
         config: Config = this.globalConfig
-    ): Promise<T> {
-        if (this.taskMeta.has(id)) {
-            throw new Error('Task is still pending, if you want to cancel it call cancel(id).');
-        }
-        this.taskMeta.set(id, { canceled: false, starttime: Date.now(), onRetry: retryHook });
-        return this._insist<T>(id, taskRetriever, config, config.retries!);
+    ): Insist<T> {
+        const _config = { ...this.globalConfig, ...config };
+        const uuid = v4();
+        this.taskMeta.set(uuid, { canceled: false, starttime: Date.now(), onRetry: retryHook });
+        return new Insist(uuid, this._insist<T>(uuid, taskRetriever, _config, _config.retries!));
     }
 
-    public replaceTask<T>(id: ID, taskRetriever: TaskRetriever<T>): Promise<void> {
-        const meta = this.taskMeta.get(id);
+    public replaceTask<T>(insist: Insist<T>, taskRetriever: TaskRetriever<T>): Promise<void> {
+        const meta = this.taskMeta.get(insist.getID());
         if (meta !== undefined) {
             meta.task = taskRetriever;
         }
         return Promise.resolve();
     }
-    public async addRetryHook<T>(id: ID, callback: RetryCallback): Promise<void> {
+    public async setRetryHook<T>(id: ID, callback: RetryCallback): Promise<void> {
         const meta = this.taskMeta.get(id);
         if (meta !== undefined) {
             meta.onRetry = callback;
         }
-
         return Promise.resolve();
     }
 
@@ -159,12 +204,15 @@ export default class PromiseInsist {
 
             return new Promise<T>(
                 resolve => {
-                    metaData.resolve = async () => resolve(this._insist<T>
+                    metaData.resolve = () => resolve(this._insist<T>
                         (
                         id, (metaData.task ? metaData.task : taskRetriever),
                         config, maxRetries
                         ));
-                    metaData.timeout = setTimeout(metaData.resolve, <number>delay);
+                    metaData.timeout = setTimeout(
+                        metaData.resolve,
+                        <number>delay
+                    );
                 });
         }
     }
