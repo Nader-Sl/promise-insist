@@ -1,6 +1,6 @@
 {
   "name": "promise-insist",
-  "version": "1.0.0-rc.1",
+  "version": "1.2.0",
   "scripts": {
     "test": "jest __tests__",
     "test-watch": "jest __tests__ --watchAll --env=jsdom",
@@ -13,7 +13,6 @@
     "gulp-typedoc": "^2.2.0",
     "uuid": "^3.3.2"
   },
- 
   "devDependencies": {
     "@types/jest": "^23.3.3",
     "@types/node": "^10.11.4",
