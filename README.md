@@ -1,7 +1,7 @@
 # promise-insist
 [![NPM version](https://badge.fury.io/js/promise-insist.svg)](https://www.npmjs.com/package/promise-insist) 
 [![Travis CI Build](https://travis-ci.org/Nader-Sl/promise-insist.svg?branch=master)](https://travis-ci.org/Nader-Sl/promise-insist) 
-[![NPM Documentation](https://img.shields.io/badge/documentaion-1.0.0--rc.1-orange.svg)](https://nader-sl.github.io/promise-persist/) 
+[![NPM Documentation](https://img.shields.io/badge/docs-latest-lightgrey.svg)](https://nader-sl.github.io/promise-persist/) 
 
 <br/>
   <h3 align="center">“When someone promises you and doesn’t deliver, you’d better insist.”</h3>
@@ -22,7 +22,9 @@ is whitelisted through global or task specific __config__
 * Replace a task being retried by another one dynamically while maintaining the current insist configuration
 and retries count left (useful with things like rate-limits etc..)
 
-## Npm install
+### → Check out my [medium](https://medium.com/@nadersleiman_3234/promise-insist-you-promised-and-i-insist-s-ce989f55bb3b) article for the guide.
+
+##### Npm install
 ```powershell
 npm i promise-insist --save
 ```

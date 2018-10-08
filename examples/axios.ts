@@ -1,5 +1,5 @@
 
-import PromiseInsist, { Delays, ErrorFilters } from '.';
+import PromiseInsist, { Delays, ErrorFilters } from '../index';
 import axios from 'axios';
 
 // A preset of Delays error filters.
