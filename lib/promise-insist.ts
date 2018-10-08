@@ -108,7 +108,6 @@ export default class PromiseInsist {
         const idx = this.taskMetaKeys.indexOf(id);
         if (idx === -1) {
             this.taskMetaKeys.push(id);
-            // console.log(`[SET] , size = ${this.taskMetaKeys.length}`);
         }
         this.taskMeta.set(id, metaData);
 
@@ -117,7 +116,6 @@ export default class PromiseInsist {
         const idx = this.taskMetaKeys.indexOf(id);
         if (idx !== -1) {
             this.taskMetaKeys.splice(idx, 1);
-            //console.log(`[DELETE] , size = ${this.taskMetaKeys.length}`);
         }
         if (this.taskMeta.has(id)) {
             this.taskMeta.delete(id);
