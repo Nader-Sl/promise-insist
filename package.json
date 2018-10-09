@@ -1,6 +1,6 @@
 {
   "name": "promise-insist",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "scripts": {
     "test": "jest __tests__",
     "test-watch": "jest __tests__ --watchAll --env=jsdom",
