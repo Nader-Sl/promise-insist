@@ -1,5 +1,5 @@
 
-import PromiseInsist from '../index';
+import PromiseInsist, { CancelError } from '../index';
 
 function getRand(min, max): number {
   const _min = Math.ceil(min);
@@ -65,6 +65,7 @@ async function testInsist1() {
     console.log(`Insist1 : Magic number ${res} was guessed!`);
   } catch (err) {
     console.log(`Insist1: Magic number wasn't guessed.. ${err}`);
+
   }
 }
 

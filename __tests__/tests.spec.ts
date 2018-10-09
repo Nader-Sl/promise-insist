@@ -1,4 +1,3 @@
-
 import PromiseInsist from '../lib/promise-insist';
 
 const maxRetries = 10;
@@ -64,7 +63,7 @@ describe('Promise-Insist Test Suite', async () => {
       setTimeout(() => cancelInsist(insist1), delayToCancelAfterHalfMaxTries);
       await insist1;
     } catch (e) {
-      expect(mockCB.mock.calls.length).toBe(Math.ceil((maxRetries + 1) * 0.5));
+      expect(mockCB.mock.calls.length).toBe(Math.ceil((maxRetries) * 0.5));
     }
   });
 

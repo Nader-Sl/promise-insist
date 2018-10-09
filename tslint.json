@@ -54,6 +54,7 @@
         "no-bitwise": false,
         "no-string-based-set-timeout": false,
         "mocha-no-side-effect-code":false,
-        "no-delete-expression": false
+        "no-delete-expression": false,
+        "prefer-type-cast":false
     }
 }

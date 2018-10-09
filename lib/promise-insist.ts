@@ -55,6 +55,14 @@ export class Insist<T> implements Promise<T> {
     public [Symbol.toStringTag]: 'Promise';
 }
 
+export class CancelError extends Error {
+    constructor() {
+        super('Canceled');
+        const actualProto = new.target.prototype;
+        if (Object.setPrototypeOf) { Object.setPrototypeOf(this, actualProto); } else { (this as any).__proto__ = actualProto; }
+    }
+}
+
 export default class PromiseInsist {
 
     //global config per instance.
@@ -163,14 +171,24 @@ export default class PromiseInsist {
         config: Config,
         maxRetries: number
     ): Promise<T> {
-
+        const metaData = <MetaData>this.taskMeta.get(id);
+        if (metaData && metaData.canceled) {
+            if (this.verbose) {
+                console.log(`Canceled task of ID : ${id} (~ ${Date.now() - (metaData.starttime || 0)} ms)`);
+            }
+            this.taskMeta.delete(id);
+            if (typeof metaData.cancelResolver === 'function') {
+                metaData.cancelResolver({ id, time: Date.now() - (metaData.starttime || 0) });
+                throw new CancelError();
+            }
+        }
         const taskStarttime = Date.now();
         try {
             const result = await taskRetriever();
             this.taskMeta.delete(id);
             return result;
         } catch (err) {
-            const metaData = <MetaData>this.taskMeta.get(id);
+
             //required in case promise was revoked twice after cancel()
             if (metaData === undefined) {
                 return Promise.resolve(err);
@@ -178,16 +196,9 @@ export default class PromiseInsist {
             delete metaData.timeout;
 
             if (!config.errorFilter!(err) ||
-                config.retries === 0 ||
-                metaData.canceled
+                config.retries === 0
             ) {
-                if (this.verbose && metaData.canceled) {
-                    console.log(`Canceled task of ID : ${id} (~ ${Date.now() - (metaData.starttime || 0)} ms)`);
-                }
-                this.taskMeta.delete(id);
-                if (typeof metaData.cancelResolver === 'function') {
-                    metaData.cancelResolver({ id, time: Date.now() - (metaData.starttime || 0) });
-                }
+
                 return Promise.reject(err);
             }
             let delay = config.delay;

@@ -22,9 +22,18 @@
             "group":"build"
         },
         {
-            "label": "Test",
+            "label": "test",
             "type": "shell",
             "command": "npm run test",
+            "options": {
+                "cwd": "./"
+            },
+            "group":"build"
+        },
+        {
+            "label": "test-watch",
+            "type": "shell",
+            "command": "npm run test-watch",
             "options": {
                 "cwd": "./"
             },
