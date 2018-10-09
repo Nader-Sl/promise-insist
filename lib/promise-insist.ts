@@ -3,7 +3,6 @@ import { v4 } from 'uuid';
 export type DelayFunc = ((maxRetries: number, retries: number) => number);
 export type TaskRetriever<T> = () => Promise<T>;
 export type ID = number | string;
-export type IDWrapper = { value: ID }; //reequired for weakmap
 export type ErrorFilter = (error: any) => boolean;
 export type CancelResolver = (any) => any;
 export type RetryCallback = ((attempts: number, timeConsumed: number) => void) | null | undefined;
@@ -28,12 +27,12 @@ export class Insist<T> implements Promise<T> {
     private _promise: Promise<T>;
     private _id;
 
-    constructor(id: IDWrapper, promise: Promise<T>) {
+    constructor(id: ID, promise: Promise<T>) {
         this._id = id;
         this._promise = promise;
     }
 
-    public getIDWrapper() {
+    public getID() {
         return this._id;
     }
 
@@ -65,12 +64,7 @@ export default class PromiseInsist {
         errorFilter: err => true
     };
 
-    /**
-     * Using weakmap to actually delete all keys and values from memory on delete to prevent memory leaks
-     * along with a keys tracker list to perform bulk operations (cancelInsistAll).
-     */
-    private taskMeta: WeakMap<IDWrapper, MetaData> = new WeakMap();
-    private taskMetaKeys: IDWrapper[] = [];
+    private taskMeta: Map<number | string, MetaData> = new Map();
     private verbose: boolean = false;
 
     /**
@@ -99,36 +93,14 @@ export default class PromiseInsist {
         this.verbose = verbose;
         return this;
     }
-
-    private genID(): IDWrapper {
-        return { value: v4() };
-    }
-
-    private setTask(id: IDWrapper, metaData: MetaData) {
-        const idx = this.taskMetaKeys.indexOf(id);
-        if (idx === -1) {
-            this.taskMetaKeys.push(id);
-        }
-        this.taskMeta.set(id, metaData);
-
-    }
-    private deleteTask(id: IDWrapper) {
-        const idx = this.taskMetaKeys.indexOf(id);
-        if (idx !== -1) {
-            this.taskMetaKeys.splice(idx, 1);
-        }
-        if (this.taskMeta.has(id)) {
-            this.taskMeta.delete(id);
-        }
-    }
     /**
      *
      * @param ids the ids associated with the retryable promises/tasks
      */
 
-    public async cancelInsist<T>(...insists: (Insist<T> | IDWrapper)[]) {
+    public async cancelInsist<T>(...insists: (Insist<T> | ID)[]) {
         insists.forEach(async (insist) => {
-            const id = insist instanceof Insist ? insist.getIDWrapper() : insist;
+            const id = insist instanceof Insist ? insist.getID() : insist;
             await new Promise(async (resolve) => {
                 const meta = this.taskMeta.get(id);
                 if (meta === undefined ||
@@ -138,7 +110,7 @@ export default class PromiseInsist {
                     resolve();
                 } else {
                     clearTimeout(meta.timeout);
-                    this.setTask(id, { ...meta, canceled: true, cancelResolver: resolve });
+                    this.taskMeta.set(id, { ...meta, canceled: true, cancelResolver: resolve });
                     meta.resolve();
                 }
             });
@@ -147,7 +119,7 @@ export default class PromiseInsist {
     }
 
     public async cancelAllInsists() {
-        return this.cancelInsist(...this.taskMetaKeys);
+        return this.cancelInsist(...Array.from(this.taskMeta.keys()));
     }
 
     /**
@@ -165,19 +137,19 @@ export default class PromiseInsist {
         config: Config = this.globalConfig
     ): Insist<T> {
         const _config = { ...this.globalConfig, ...config };
-        const uuid = this.genID();
-        this.setTask(uuid, { canceled: false, starttime: Date.now(), onRetry: retryHook });
+        const uuid = v4();
+        this.taskMeta.set(uuid, { canceled: false, starttime: Date.now(), onRetry: retryHook });
         return new Insist(uuid, this._insist<T>(uuid, taskRetriever, _config, _config.retries!));
     }
 
     public replaceTask<T>(insist: Insist<T>, taskRetriever: TaskRetriever<T>): Promise<void> {
-        const meta = this.taskMeta.get(insist.getIDWrapper());
+        const meta = this.taskMeta.get(insist.getID());
         if (meta !== undefined) {
             meta.task = taskRetriever;
         }
         return Promise.resolve();
     }
-    public async setRetryHook<T>(id: IDWrapper, callback: RetryCallback): Promise<void> {
+    public async setRetryHook<T>(id: ID, callback: RetryCallback): Promise<void> {
         const meta = this.taskMeta.get(id);
         if (meta !== undefined) {
             meta.onRetry = callback;
@@ -186,7 +158,7 @@ export default class PromiseInsist {
     }
 
     private async _insist<T>(
-        id: IDWrapper,
+        id: ID,
         taskRetriever: TaskRetriever<T>,
         config: Config,
         maxRetries: number
@@ -195,7 +167,7 @@ export default class PromiseInsist {
         const taskStarttime = Date.now();
         try {
             const result = await taskRetriever();
-            this.deleteTask(id);
+            this.taskMeta.delete(id);
             return result;
         } catch (err) {
             const metaData = <MetaData>this.taskMeta.get(id);
@@ -212,7 +184,7 @@ export default class PromiseInsist {
                 if (this.verbose && metaData.canceled) {
                     console.log(`Canceled task of ID : ${id} (~ ${Date.now() - (metaData.starttime || 0)} ms)`);
                 }
-                this.deleteTask(id);
+                this.taskMeta.delete(id);
                 if (typeof metaData.cancelResolver === 'function') {
                     metaData.cancelResolver({ id, time: Date.now() - (metaData.starttime || 0) });
                 }
