@@ -29,7 +29,6 @@ setTimeout(
   async () => {
     try {
       cancelInsist(insistGET1);
-      console.log('canceled insistGET1');
       const res = await insist(() => axios.get('http://localhost:1337/important2'));
       console.log(res);
       console.log('^ do something different now.');

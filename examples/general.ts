@@ -64,8 +64,11 @@ async function testInsist1() {
     const res = await insist1;
     console.log(`Insist1 : Magic number ${res} was guessed!`);
   } catch (err) {
-    console.log(`Insist1: Magic number wasn't guessed.. ${err}`);
-
+    console.log(
+      `Error[Insist1]: ${err instanceof CancelError ?
+        'Task has been Canceled!' :
+        `Magic number wasn't guessed.. : ${err}`}`
+    );
   }
 }
 
@@ -85,7 +88,6 @@ async function testInsist2() {
     async () => {
       try {
         await cancelInsist(insist1);
-        console.log('Canceled Insist1 ...');
         const res = await insist2;
         console.log(`Insist2 : Magic number ${res} was guessed!`);
       } catch (err) { console.log(`Insist2: Magic number wasn't guessed.. :${err}`); }

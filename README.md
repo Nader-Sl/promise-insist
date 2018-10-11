@@ -31,7 +31,7 @@ npm i promise-insist --save
 
 ## General Example
 ```typescript
-import PromiseInsist from 'promise-insist'
+import PromiseInsist, { CancelError } from 'promise-insist';
 
 function getRand(min, max): number {
   const _min = Math.ceil(min);
@@ -80,7 +80,10 @@ const insist1 = insist(
  */
 const insist2 = insist(
   guessCallwrapper(7),
-  null, //no retry hook this time
+  // A retry hook, executed on every attempt, passed in current attempt count and time consumed by the last retry
+  (attemptCount, timeConsumed) => {
+    console.log(`Insist2: Attempt #${attemptCount} done in ${timeConsumed} ms`);
+  },
   {// Explicitly specify config.
     delay: 2000,
     retries: 10,
@@ -88,16 +91,20 @@ const insist2 = insist(
   }
 );
 
-async function runTaskInsist1() {
+async function testInsist1() {
   try {
     const res = await insist1;
     console.log(`Insist1 : Magic number ${res} was guessed!`);
   } catch (err) {
-    console.log(`Insist1: Magic number wasn't guessed.. ${err}`);
+    console.log(
+      `Error[Insist1]: ${err instanceof CancelError ?
+        'Task has been Canceled!' :
+        `Magic number wasn't guessed.. : ${err}`}`
+    );
   }
 }
 
-runTaskInsist1();
+testInsist1();
 
 /**
  * Retry cancelation test:
@@ -108,7 +115,7 @@ runTaskInsist1();
  * to make sure it only retries if thereturned error code was 777.
  */
 
-async function runTaskInsist2() {
+async function testInsist2() {
   setTimeout(
     async () => {
       try {
@@ -120,7 +127,7 @@ async function runTaskInsist2() {
     getRand(3000, 4000));
 }
 
-runTaskInsist2();
+testInsist2();
 
 ```
 ## Example Output
@@ -130,8 +137,7 @@ Insist1: Attempt #29 done in 0 ms
 Insist2: Attempt #9 done in 0 ms
 Insist1: Attempt #28 done in 0 ms
 Insist2: Attempt #8 done in 0 ms
-Canceled Insist1 ...
-Insist1: Magic number wasn't guessed.. 777
+Error[Insist1]: Task has been Canceled!
 Insist2: Attempt #7 done in 0 ms
 Insist2: Attempt #6 done in 0 ms
 Insist2: Attempt #5 done in 0 ms
